@@ -175,7 +175,7 @@ export default function CosmicAgeCalculator() {
       
       {/* Brilho atmosférico do planeta selecionado */}
       <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] rounded-full pointer-events-none opacity-15 blur-[130px] transition-all duration-500"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] max-w-full sm:w-[600px] h-[450px] sm:h-[600px] rounded-full pointer-events-none opacity-15 blur-[130px] transition-all duration-500"
         style={{ background: `radial-gradient(circle, ${planet.color} 0%, transparent 70%)` }}
       />
 

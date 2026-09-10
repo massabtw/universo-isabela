@@ -28,7 +28,7 @@ export default function Header() {
         style={{ scaleX }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Logo / Título do Universo */}
         <div className="flex items-center gap-2.5">
           <span className="text-celestial-gold text-sm animate-pulse">🌙</span>
@@ -38,7 +38,7 @@ export default function Header() {
         </div>
 
         {/* Navegação por seções */}
-        <nav className="flex items-center gap-4 sm:gap-7">
+        <nav className="flex items-center gap-2 sm:gap-7 max-w-full overflow-x-auto pb-1 sm:pb-0">
           {[
             { label: "A Lua", href: "#lua" },
             { label: "Constelação", href: "#constelacao" },
@@ -49,7 +49,7 @@ export default function Header() {
             <a
               key={item.href}
               href={item.href}
-              className="text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] text-gray-400 hover:text-celestial-gold transition-colors duration-300 font-sans"
+              className="shrink-0 text-[10px] sm:text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] text-gray-400 hover:text-celestial-gold transition-colors duration-300 font-sans"
             >
               {item.label}
             </a>

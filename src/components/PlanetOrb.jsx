@@ -41,7 +41,7 @@ export default function PlanetOrb({ planet, size = 38, className = "" }) {
 
         {/* Disco da Fotosfera Solar com Textura Real */}
         <div 
-          className="relative w-full h-full rounded-full overflow-hidden border border-yellow-200 shadow-[0_0_25px_#FFAE34] bg-[#FF9900]"
+          className="relative w-full h-full rounded-full overflow-hidden shadow-[0_0_25px_#FFAE34] bg-[#FF9900]"
         >
           <img 
             src={planet.texture3D || "/planetas/3d/sol.jpg"} 
@@ -84,9 +84,9 @@ export default function PlanetOrb({ planet, size = 38, className = "" }) {
             transform: 'translate(-50%, -50%) rotate(-25deg)',
           }}
         >
-          {/* Anel Externo com Textura Translúcida */}
+          {/* Anel Externo com Textura Translúcida (100% sem borda) */}
           <div 
-            className="w-full h-full rounded-full border-2 border-yellow-200/60 shadow-[0_0_12px_rgba(226,206,159,0.5)]"
+            className="w-full h-full rounded-full shadow-[0_0_12px_rgba(226,206,159,0.35)]"
             style={{
               background: 'radial-gradient(ellipse at center, transparent 48%, rgba(226,206,159,0.3) 50%, rgba(245,230,180,0.75) 75%, transparent 92%)'
             }}
@@ -94,9 +94,9 @@ export default function PlanetOrb({ planet, size = 38, className = "" }) {
         </div>
       )}
 
-      {/* ── Globo Esférico com Textura Real e Sombra 3D ── */}
+      {/* ── Globo Esférico com Textura Real e Sombra 3D (Sem nenhuma borda) ── */}
       <div 
-        className="relative w-full h-full rounded-full overflow-hidden shadow-2xl border border-white/20 transition-transform duration-300 z-20 group-hover:scale-110"
+        className="relative w-full h-full rounded-full overflow-hidden shadow-2xl transition-transform duration-300 z-20 group-hover:scale-110 border-0 border-none"
         style={{ backgroundColor: planet.color }}
       >
         {/* Textura Fotográfica de Superfície da NASA */}
@@ -106,14 +106,13 @@ export default function PlanetOrb({ planet, size = 38, className = "" }) {
           className="w-full h-full object-cover select-none pointer-events-none scale-135"
         />
 
-        {/* Terminador de Iluminação 3D Esférico Realista (Dia / Noite Cósmico) */}
+        {/* Terminador de Iluminação 3D Esférico Realista (Dia / Noite Cósmico Suave) */}
         <div 
           className="absolute inset-0 rounded-full pointer-events-none"
           style={{
             boxShadow: `
               inset -${Math.max(3, size * 0.32)}px -${Math.max(2, size * 0.2)}px ${Math.max(6, size * 0.45)}px ${Math.max(1, size * 0.08)}px rgba(0, 0, 0, 0.95),
-              inset ${Math.max(2, size * 0.16)}px ${Math.max(2, size * 0.14)}px ${Math.max(4, size * 0.3)}px rgba(255, 255, 255, 0.32),
-              0 0 ${Math.max(3, size * 0.25)}px ${planet.atmosphereColor}40
+              inset ${Math.max(2, size * 0.16)}px ${Math.max(2, size * 0.14)}px ${Math.max(4, size * 0.3)}px rgba(255, 255, 255, 0.15)
             `
           }}
         />

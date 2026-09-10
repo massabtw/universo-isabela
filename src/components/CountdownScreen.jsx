@@ -10,6 +10,7 @@
  * - Efeito de expansão cósmica por linhas de velocidade estelar e clarão de luz
  */
 
+import { getTimeLeft } from "../utils/countdown";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -65,17 +66,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
   const animIdRef = useRef(null);
 
   // Cálculo de tempo
-  const calculateTimeLeft = () => {
-    const diff = new Date(targetDate) - new Date();
-    if (diff <= 0) return { diff: 0, days: 0, hours: 0, minutes: 0, seconds: 0 };
-    return {
-      diff,
-      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-      minutes: Math.floor((diff / (1000 * 60 * 60)) % 60),
-      seconds: Math.floor((diff / (1000 * 60)) % 60),
-    };
-  };
+  const calculateTimeLeft = () => getTimeLeft(targetDate);
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
 
@@ -106,18 +97,22 @@ export default function CountdownScreen({ targetDate, onComplete }) {
   useEffect(() => {
     if (isExploding) return;
 
-    const timer = setInterval(() => {
+    const tick = () => {
       const current = calculateTimeLeft();
       if (current.diff <= 0) {
-        clearInterval(timer);
+
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         triggerBigBang();
       } else {
         setTimeLeft(current);
       }
-    }, 1000);
-
-    return () => clearInterval(timer);
+    };
+    const timer = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
   }, [targetDate, isExploding]);
 
   // Canvas leve e otimizado (60 FPS garantidos)
@@ -288,7 +283,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
             <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8 mb-14">
               {/* Dias */}
               <div className="flex flex-col items-center">
-                <span className="font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
+                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
                   {pad(timeLeft.days)}
                 </span>
                 <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
@@ -300,7 +295,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
 
               {/* Horas */}
               <div className="flex flex-col items-center">
-                <span className="font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
+                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
                   {pad(timeLeft.hours)}
                 </span>
                 <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
@@ -312,7 +307,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
 
               {/* Minutos */}
               <div className="flex flex-col items-center">
-                <span className="font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
+                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
                   {pad(timeLeft.minutes)}
                 </span>
                 <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
@@ -324,7 +319,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
 
               {/* Segundos */}
               <div className="flex flex-col items-center">
-                <span className="font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
+                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
                   {pad(timeLeft.seconds)}
                 </span>
                 <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">

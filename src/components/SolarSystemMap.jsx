@@ -222,10 +222,10 @@ export default function SolarSystemMap() {
                       onMouseEnter={() => setHoveredAstro(SUN_DATA)}
                       onMouseLeave={() => setHoveredAstro(null)}
                       onClick={() => handleSelectPlanet("sol")}
-                      className="group relative flex flex-col items-center cursor-pointer focus:outline-none"
+                      className="group relative flex flex-col items-center cursor-pointer border-0 border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none"
                       aria-label="Inspecionar O Sol"
                     >
-                      <div className="rounded-full flex items-center justify-center relative z-10">
+                      <div className="rounded-full flex items-center justify-center relative z-10 border-0 border-none">
                         <PlanetOrb planet={SUN_DATA} size={54} />
                       </div>
                     </motion.button>
@@ -247,7 +247,7 @@ export default function SolarSystemMap() {
                           left: `${xPct}%`,
                           top: `${yPct}%`,
                         }}
-                        className="absolute -translate-x-1/2 -translate-y-1/2 z-30"
+                        className="absolute -translate-x-1/2 -translate-y-1/2 z-30 border-0 border-none"
                       >
                         <motion.button
                           whileHover={{ scale: 1.25 }}
@@ -256,10 +256,10 @@ export default function SolarSystemMap() {
                           onMouseEnter={() => setHoveredAstro(planet)}
                           onMouseLeave={() => setHoveredAstro(null)}
                           onClick={() => handleSelectPlanet(planet.id)}
-                          className="group relative flex flex-col items-center cursor-pointer focus:outline-none touch-manipulation"
+                          className="group relative flex flex-col items-center cursor-pointer border-0 border-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none touch-manipulation"
                           aria-label={`Aproximar de ${planet.name}`}
                         >
-                          <div className="rounded-full flex items-center justify-center relative z-10">
+                          <div className="rounded-full flex items-center justify-center relative z-10 border-0 border-none">
                             <PlanetOrb planet={planet} size={orbSize} />
                           </div>
 
@@ -270,10 +270,10 @@ export default function SolarSystemMap() {
                                 e.stopPropagation();
                                 handleSelectPlanet("terra", true);
                               }}
-                              className="absolute -top-2.5 -right-3.5 cursor-pointer group-hover:scale-125 transition-transform z-20"
+                              className="absolute -top-2.5 -right-3.5 cursor-pointer group-hover:scale-125 transition-transform z-20 border-0 border-none"
                               title="A Lua (Satélite Natural da Terra)"
                             >
-                              <div className="w-3.5 h-3.5 rounded-full overflow-hidden border border-white/70 shadow-md flex items-center justify-center">
+                              <div className="w-3.5 h-3.5 rounded-full overflow-hidden shadow-md flex items-center justify-center border-0 border-none">
                                 <PlanetOrb planet={planet.satellite} size={14} />
                               </div>
                             </div>

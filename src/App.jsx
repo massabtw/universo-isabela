@@ -16,6 +16,7 @@ import { BIRTHDAY_DATE } from "./config";
 
 // Componentes do Universo
 import CountdownScreen from "./components/CountdownScreen";
+import SmoothScroll from "./components/SmoothScroll";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
 import MoonPhase from "./components/MoonPhase";
@@ -34,6 +35,7 @@ export default function App() {
   });
 
   const handleCountdownComplete = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     setIsMuseumOpen(true);
   };
 
@@ -68,6 +70,7 @@ export default function App() {
             <MusicPlayer />
 
             {/* Cabeçalho de navegação */}
+            <SmoothScroll />
             <Header />
 
             {/* Entrada Cinematográfica */}

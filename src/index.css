@@ -62,3 +62,24 @@ body {
   will-change: opacity, transform;
   animation: twinkle ease-in-out infinite;
 }
+
+/* The opening scene is scrubbed by scroll, including on browsers without scroll timelines. */
+.hero-story { height: 190svh; --hero-progress: 0; }
+.hero-scene { position: sticky; top: 0; height: 100svh; min-height: 560px; display: flex; align-items: center; justify-content: center; overflow: hidden; perspective: 1000px; }
+.hero-copy { animation: hero-depart 1s linear both paused; animation-delay: calc(var(--hero-progress) * -1s); transform-origin: 50% 46%; }
+.hero-scroll-glow { position: absolute; width: 65vmin; height: 65vmin; border-radius: 50%; background: radial-gradient(circle, #a6c7fa26, #8766bd12 40%, transparent 70%); animation: hero-light 1s linear both paused; animation-delay: calc(var(--hero-progress) * -1s); pointer-events: none; }
+.hero-scroll-cue { opacity: calc(1 - var(--hero-progress) * 4) !important; }
+@keyframes hero-depart {
+  0% { transform: translate3d(0,0,0) scale(1); opacity: 1; filter: blur(0); }
+  40% { transform: translate3d(0,-35px,0) scale(1.14); opacity: .85; filter: blur(0); }
+  85%, 100% { transform: translate3d(0,-100px,0) scale(1.5); opacity: 0; filter: blur(9px); }
+}
+@keyframes hero-light { from { transform: scale(.8); opacity: .3; } to { transform: scale(4); opacity: 0; } }
+.scroll-chevron { color: #e5c483; animation: scroll-trail 2s ease-in-out infinite; }
+@keyframes scroll-trail { 0%, 100% { transform: translateY(0); opacity: .35; } 50% { transform: translateY(8px); opacity: 1; } }
+@media (max-height: 600px) { .hero-scene { min-height: 100svh; } .hero-copy { padding-top: 70px; padding-bottom: 90px; } .hero-copy h1 { font-size: clamp(2rem, 8vw, 4rem); } .hero-scroll-cue { bottom: 12px; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero-story { height: auto; }
+  .hero-copy, .hero-scroll-glow, .scroll-chevron { animation: none; }
+}

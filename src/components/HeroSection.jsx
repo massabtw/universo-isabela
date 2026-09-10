@@ -4,12 +4,36 @@
  * ============================================
  */
 
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { PERSON_NAME, TURNING_AGE } from "../config";
 
 export default function HeroSection() {
+  const storyRef = useRef(null);
+  useEffect(() => {
+    const story = storyRef.current;
+    let frame;
+    const update = () => {
+      const distance = story.offsetHeight - window.innerHeight;
+      const progress = Math.min(1, Math.max(0, -story.getBoundingClientRect().top / Math.max(1, distance)));
+      story.style.setProperty('--hero-progress', progress);
+      frame = null;
+    };
+    const schedule = () => { if (frame == null) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
+  }, []);
   return (
-    <section className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden bg-transparent">
+    <section ref={storyRef} className="hero-story relative z-10">
+      <div className="hero-scene">
+      <div className="hero-scroll-glow" aria-hidden="true" />
+      <div className="hero-copy relative flex flex-col items-center justify-center px-6 pt-20 pb-40 w-full">
       {/* Luz ambiente central sutil */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div 
@@ -80,27 +104,24 @@ export default function HeroSection() {
         Mas algumas pessoas trazem uma constelação inteira no olhar.”
       </motion.p>
 
+      </div>
       {/* Indicador de scroll animado */}
-      <motion.div
+      <motion.button
+        type="button"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 2.8 }}
-        className="absolute bottom-10 flex flex-col items-center gap-3 cursor-pointer"
+        className="hero-scroll-cue absolute bottom-10 flex flex-col items-center gap-3 cursor-pointer"
         onClick={() => {
-          document.getElementById('lua')?.scrollIntoView({ behavior: 'smooth' });
+          document.getElementById('lua')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
         }}
       >
         <p className="text-[10px] uppercase tracking-[0.35em] text-gray-400 font-mono">
-          Descobrir a Lua de 2007
+          Arraste para explorar o universo
         </p>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-celestial-gold text-lg"
-        >
-          ↓
-        </motion.div>
-      </motion.div>
+        <span className="scroll-chevron" aria-hidden="true">↓</span>
+      </motion.button>
+      </div>
     </section>
   );
 }

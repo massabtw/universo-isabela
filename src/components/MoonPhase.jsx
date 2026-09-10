@@ -8,105 +8,26 @@
  * quanto para o dia de HOJE, exibindo a data exata.
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Função para calcular matematicamente a fase lunar exata
-function calculateLunarData(targetDate) {
-  const d = new Date(targetDate);
-  const knownNewMoon = new Date("2000-01-06T18:14:00Z");
-  const synodicMonth = 29.53058867;
-  const diffDays = (d.getTime() - knownNewMoon.getTime()) / (1000 * 60 * 60 * 24);
-  const rawPhase = ((diffDays % synodicMonth) + synodicMonth) % synodicMonth;
-  const phaseNormalized = rawPhase / synodicMonth; // de 0 a 1
-  const ageDays = rawPhase.toFixed(1);
-  const illuminationPercent = Math.round(((1 - Math.cos(phaseNormalized * 2 * Math.PI)) / 2) * 100);
-
-  let phaseName = "";
-  let visualStyle = {};
-  let glowColor = "rgba(229, 196, 131, 0.35)";
-
-  if (phaseNormalized < 0.03 || phaseNormalized >= 0.97) {
-    phaseName = "Lua Nova (New Moon)";
-    visualStyle = {
-      boxShadow: "inset 0 0 25px 8px rgba(0, 0, 0, 0.95), 0 0 15px rgba(255, 255, 255, 0.1)",
-    };
-    glowColor = "rgba(120, 167, 217, 0.2)";
-  } else if (phaseNormalized < 0.22) {
-    phaseName = "Lua Crescente (Waxing Crescent)";
-    visualStyle = {
-      boxShadow: "inset -26px 0px 28px 2px rgba(250, 235, 205, 0.95), inset -8px 0px 14px rgba(255, 255, 255, 1)",
-      filter: "drop-shadow(0 0 20px rgba(229,196,131,0.65))",
-    };
-    glowColor = "rgba(229, 196, 131, 0.5)";
-  } else if (phaseNormalized < 0.28) {
-    phaseName = "Quarto Crescente (First Quarter)";
-    visualStyle = {
-      boxShadow: "inset -65px 0px 45px 5px rgba(240, 230, 210, 0.95)",
-      filter: "drop-shadow(0 0 22px rgba(220,200,160,0.5))",
-    };
-    glowColor = "rgba(220, 200, 160, 0.4)";
-  } else if (phaseNormalized < 0.47) {
-    phaseName = "Lua Gibosa Crescente (Waxing Gibbous)";
-    visualStyle = {
-      boxShadow: "inset -110px 0px 60px 8px rgba(255, 245, 225, 0.95)",
-      filter: "drop-shadow(0 0 28px rgba(255,235,180,0.6))",
-    };
-    glowColor = "rgba(255, 235, 180, 0.5)";
-  } else if (phaseNormalized < 0.53) {
-    phaseName = "Lua Cheia (Full Moon)";
-    visualStyle = {
-      boxShadow: "inset 0 0 45px rgba(255, 255, 255, 0.9), 0 0 35px rgba(245, 230, 200, 0.8)",
-      filter: "drop-shadow(0 0 35px rgba(245,230,200,0.85))",
-    };
-    glowColor = "rgba(245, 230, 200, 0.7)";
-  } else if (phaseNormalized < 0.72) {
-    phaseName = "Lua Gibosa Minguante (Waning Gibbous)";
-    visualStyle = {
-      boxShadow: "inset 110px 0px 60px 8px rgba(220, 235, 255, 0.95)",
-      filter: "drop-shadow(0 0 28px rgba(160,200,245,0.6))",
-    };
-    glowColor = "rgba(160, 200, 245, 0.45)";
-  } else if (phaseNormalized < 0.78) {
-    phaseName = "Quarto Minguante (Last Quarter)";
-    visualStyle = {
-      boxShadow: "inset 65px 0px 45px 5px rgba(210, 230, 255, 0.95)",
-      filter: "drop-shadow(0 0 22px rgba(140,190,240,0.5))",
-    };
-    glowColor = "rgba(140, 190, 240, 0.4)";
-  } else {
-    phaseName = "Lua Minguante (Waning Crescent)";
-    visualStyle = {
-      boxShadow: "inset 26px 0px 28px 2px rgba(210, 230, 255, 0.95), inset 8px 0px 14px rgba(255, 255, 255, 1)",
-      filter: "drop-shadow(0 0 20px rgba(130,185,245,0.65))",
-    };
-    glowColor = "rgba(130, 185, 245, 0.45)";
-  }
-
-  // Constelação lunar aproximada
-  const zodiacList = [
-    "Áries ♈", "Touro ♉", "Gêmeos ♊", "Câncer ♋", 
-    "Leão ♌", "Virgem ♍", "Libra ♎", "Escorpião ♏", 
-    "Sagitário ♐", "Capricórnio ♑", "Aquário ♒", "Peixes ♓"
-  ];
-  const eclipticLongitude = Math.floor(((diffDays * 13.176) % 360 + 360) % 360);
-  const constellation = zodiacList[Math.floor(eclipticLongitude / 30)] || "Virgem ♍";
-
-  return {
-    phaseName,
-    ageDays,
-    illuminationPercent,
-    constellation,
-    visualStyle,
-    glowColor,
-  };
-}
+import { calculateLunarData } from "../utils/moon";
 
 export default function MoonPhase() {
-  const [activeMode, setActiveMode] = useState("birth");
+  const [activeMode, setActiveMode] = useState("today");
 
   // Data de hoje calculada dinamicamente
-  const todayDate = useMemo(() => new Date(), []);
+  const [todayDate, setTodayDate] = useState(() => new Date());
+  const maskId = useId();
+  useEffect(() => {
+    const refresh = () => setTodayDate(new Date());
+    const timer = setInterval(refresh, 60000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, []);
 
   // Formatação em português
   const formattedToday = useMemo(() => {
@@ -218,7 +139,7 @@ export default function MoonPhase() {
             <motion.div 
               animate={{ y: [-6, 6, -6] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-84 md:h-84 rounded-full shadow-[0_0_50px_rgba(0,0,0,0.9)] flex items-center justify-center select-none group"
+              className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-[336px] md:h-[336px] rounded-full shadow-[0_0_50px_rgba(0,0,0,0.9)] flex items-center justify-center select-none group"
             >
               
               {/* Brilho da borda da Lua */}
@@ -245,23 +166,16 @@ export default function MoonPhase() {
                   />
                 ) : (
                   /* ── Foto Real da Lua com Sombreamento Dinâmico para Hoje ── */
-                  <div className="relative w-full h-full">
-                    <motion.img
-                      key="moon-today-real"
-                      src="/moon_full.jpg"
-                      alt="A Lua Hoje"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6 }}
-                      className="w-full h-full object-cover select-none pointer-events-none"
-                    />
-                    {/* Sombra dinâmica astronômica para a fase atual */}
-                    <div 
-                      className="absolute inset-0 rounded-full pointer-events-none transition-all duration-700"
-                      style={activeData.visualStyle}
-                    />
-                  </div>
+                  <svg viewBox="0 0 100 100" role="img" aria-label={`${activeData.phaseName}, ${activeData.illuminationPercent}% iluminada`} className="w-full h-full">
+                    <defs>
+                      <mask id={maskId}>
+                        <rect width="100" height="100" fill="black" />
+                        <path d={activeData.lightPath} fill="white" transform={activeData.waxing ? 'translate(100 0) scale(-1 1)' : undefined} />
+                      </mask>
+                    </defs>
+                    <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" opacity="0.08" />
+                    <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" mask={`url(#${maskId})`} />
+                  </svg>
                 )}
               </div>
 
@@ -316,8 +230,8 @@ export default function MoonPhase() {
                     <p className="font-serif text-sm md:text-base text-celestial-starlight font-medium">{activeData.ageDays} dias</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-midnight-800/70 border border-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Constelação</p>
-                    <p className="font-serif text-sm md:text-base text-celestial-glow font-medium">{activeData.constellation}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Referência</p>
+                    <p className="font-serif text-sm md:text-base text-celestial-glow font-medium">Vista do hemisfério sul</p>
                   </div>
                 </div>
 
