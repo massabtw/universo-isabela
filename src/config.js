@@ -152,3 +152,41 @@ export const MUSIC = {
   title: "Cornfield Chase (Interstellar)",
   artist: "Hans Zimmer",
 };
+
+// ─── Galeria Lunar ("A Lua Pelos Olhos da Bela") ───
+// Coloque os arquivos de imagem na pasta: public/fotos/
+// Você pode alterar títulos, legendas, datas ou nomes dos arquivos aqui:
+export const LUNAR_PHOTOS = [
+  {
+    id: 1,
+    file: "/fotos/lua1.jpg",
+    fallback: "/moon_2007.jpg",
+    title: "Crescente ao Entardecer",
+    caption: "A delicadeza do primeiro fio de prata recortando o céu azul-marinho.",
+    date: "Registro da Bela",
+  },
+  {
+    id: 2,
+    file: "/fotos/lua2.jpg",
+    fallback: "/moon_full.jpg",
+    title: "A Lua Cheia Radiante",
+    caption: "Quando a noite inteira se ilumina e parece não existir escuridão no mundo.",
+    date: "Noite de Brilho",
+  },
+  {
+    id: 3,
+    file: "/fotos/lua3.jpg",
+    fallback: "/moon_2007.jpg",
+    title: "Crateras & Relevo Noturno",
+    caption: "O olhar atento para os mínimos detalhes que a maioria deixa passar batido.",
+    date: "Pelo Telescópio / Lente",
+  },
+  {
+    id: 4,
+    file: "/fotos/lua4.jpg",
+    fallback: "/moon_full.jpg",
+    title: "Sob o Manto da Noite",
+    caption: "A paz silenciosa de quem encontra no cosmos o seu verdadeiro refúgio.",
+    date: "Momento Eternizado",
+  },
+];

@@ -11,49 +11,37 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LUNAR_PHOTOS } from "../config.js";
 
-// Configuração inicial dos slots de fotos (você pode colocar lua1.jpg, lua2.jpg em public/fotos/)
-const LUNAR_PHOTOS = [
-  {
-    id: 1,
-    file: "/fotos/lua1.jpg",
-    fallback: "/moon_2007.jpg",
-    title: "Crescente ao Entardecer",
-    caption: "A delicadeza do primeiro fio de prata recortando o céu azul-marinho.",
-    date: "Registro da Bela",
-  },
-  {
-    id: 2,
-    file: "/fotos/lua2.jpg",
-    fallback: "/moon_full.jpg",
-    title: "A Lua Cheia Radiante",
-    caption: "Quando a noite inteira se ilumina e parece não existir escuridão no mundo.",
-    date: "Noite de Brilho",
-  },
-  {
-    id: 3,
-    file: "/fotos/lua3.jpg",
-    fallback: "/moon_2007.jpg",
-    title: "Crateras & Relevo Noturno",
-    caption: "O olhar atento para os mínimos detalhes que a maioria deixa passar batido.",
-    date: "Pelo Telescópio / Lente",
-  },
-  {
-    id: 4,
-    file: "/fotos/lua4.jpg",
-    fallback: "/moon_full.jpg",
-    title: "Sob o Manto da Noite",
-    caption: "A paz silenciosa de quem encontra no cosmos o seu verdadeiro refúgio.",
-    date: "Momento Eternizado",
-  },
-];
+const EXTENSION_CANDIDATES = [".jpg", ".png", ".jpeg", ".webp", ".JPG", ".PNG", ".JPEG"];
 
 export default function MoonGallery() {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [imageErrors, setImageErrors] = useState({});
+  const [photoSources, setPhotoSources] = useState({});
 
-  const handleImageError = (id) => {
-    setImageErrors((prev) => ({ ...prev, [id]: true }));
+  const getDisplaySrc = (photo) => {
+    if (!photo) return "";
+    return photoSources[photo.id] || photo.file;
+  };
+
+  const handleImageError = (photo) => {
+    const currentSrc = getDisplaySrc(photo);
+    if (currentSrc === photo.fallback) return;
+
+    const dotIndex = photo.file.lastIndexOf(".");
+    if (dotIndex > 0) {
+      const basePath = photo.file.substring(0, dotIndex);
+      const currentExt = currentSrc.substring(currentSrc.lastIndexOf("."));
+      const currentIdx = EXTENSION_CANDIDATES.indexOf(currentExt);
+
+      if (currentIdx >= 0 && currentIdx < EXTENSION_CANDIDATES.length - 1) {
+        const nextExt = EXTENSION_CANDIDATES[currentIdx + 1];
+        setPhotoSources((prev) => ({ ...prev, [photo.id]: `${basePath}${nextExt}` }));
+        return;
+      }
+    }
+
+    setPhotoSources((prev) => ({ ...prev, [photo.id]: photo.fallback }));
   };
 
   return (
@@ -95,8 +83,7 @@ export default function MoonGallery() {
         {/* Grade de Fotos Estilo Galeria de Arte Noturna */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           {LUNAR_PHOTOS.map((photo, index) => {
-            const isFallback = imageErrors[photo.id];
-            const displaySrc = isFallback ? photo.fallback : photo.file;
+            const displaySrc = getDisplaySrc(photo);
 
             return (
               <motion.div
@@ -114,7 +101,7 @@ export default function MoonGallery() {
                   <img
                     src={displaySrc}
                     alt={photo.title}
-                    onError={() => handleImageError(photo.id)}
+                    onError={() => handleImageError(photo)}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 select-none"
                   />
 
@@ -156,7 +143,7 @@ export default function MoonGallery() {
         >
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-midnight-900/60 border border-white/10 text-xs text-gray-400 font-mono">
             <span className="text-celestial-gold">📸</span>
-            <span>Para colocar as fotos reais dela: basta salvar como <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua1.jpg</code>, <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua2.jpg</code> na pasta <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">public/fotos/</code></span>
+            <span>Para colocar as fotos reais dela: basta salvar como <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua1.jpg</code> (ou .png), <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua2.jpg</code> na pasta <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">public/fotos/</code></span>
           </div>
         </motion.div>
 
@@ -192,7 +179,7 @@ export default function MoonGallery() {
               {/* Imagem Ampliada */}
               <div className="relative w-full max-h-[60vh] bg-black flex items-center justify-center overflow-hidden">
                 <img
-                  src={imageErrors[selectedPhoto.id] ? selectedPhoto.fallback : selectedPhoto.file}
+                  src={getDisplaySrc(selectedPhoto)}
                   alt={selectedPhoto.title}
                   className="max-h-[60vh] w-auto object-contain"
                 />
