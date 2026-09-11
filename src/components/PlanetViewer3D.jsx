@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Pause, Play, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut } from 'lucide-react';
 
 export default function PlanetViewer3D({ textureUrl, planetName, atmosphereColor = '#ffffff', hasRings, ringTextureUrl, isSun, isAutoRotating, onToggleAutoRotate }) {
   const mount = useRef(null);
@@ -120,7 +120,6 @@ export default function PlanetViewer3D({ textureUrl, planetName, atmosphereColor
       {failed && <img className="globe-fallback" src={textureUrl} alt={planetName} />}
     </div>
     <div className="globe-controls">
-      <button className="icon-control" aria-label={isAutoRotating ? 'Pausar planeta' : 'Girar planeta'} title={isAutoRotating ? 'Pausar planeta' : 'Girar planeta'} onClick={onToggleAutoRotate}>{isAutoRotating ? <Pause size={18} /> : <Play size={18} />}</button>
       <button className="icon-control" aria-label="Aproximar planeta" title="Aproximar planeta" onClick={() => api.current?.zoom(.85)}><ZoomIn size={18} /></button>
       <button className="icon-control" aria-label="Afastar planeta" title="Afastar planeta" onClick={() => api.current?.zoom(1.15)}><ZoomOut size={18} /></button>
       <button className="icon-control" aria-label="Restaurar planeta" title="Restaurar planeta" onClick={() => api.current?.reset()}><RotateCcw size={18} /></button>

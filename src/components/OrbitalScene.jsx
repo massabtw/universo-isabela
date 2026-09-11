@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { Pause, Play, RotateCcw, ZoomIn, ZoomOut, Compass } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Compass } from 'lucide-react';
 import { PLANETS_DATA, SUN_DATA } from '../data/planetsData';
 
 const BODIES = [SUN_DATA, ...PLANETS_DATA];
@@ -13,9 +13,6 @@ export default function OrbitalScene({ onSelect }) {
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const [zoom, setZoom] = useState(1);
-  const [playing, setPlaying] = useState(() => !matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const playingRef = useRef(playing);
-  playingRef.current = playing;
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -220,7 +217,7 @@ export default function OrbitalScene({ onSelect }) {
       previous = time;
       if (!visible || document.hidden) return;
 
-      if (playingRef.current) elapsed += delta;
+      elapsed += delta;
       controls.update();
 
       meshes.forEach((mesh, index) => {
@@ -309,23 +306,17 @@ export default function OrbitalScene({ onSelect }) {
           className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
           style={{ touchAction: 'pan-y' }}
         >
-          {/* Etiquetas Flutuantes Luxuosas com Símbolo e Cor */}
+          {/* Nomes dos Planetas: Apenas o nome limpo e direto, sem fundos nem bordas */}
           {!failed && BODIES.map((body, i) => (
             <button
               key={body.id}
               ref={el => { labels.current[i] = el; }}
               onClick={() => onSelect(body.id)}
               aria-label={`Aproximar de ${body.name}`}
-              className="absolute top-0 left-0 px-2.5 py-1 rounded-full bg-midnight-950/80 border border-white/15 hover:border-celestial-gold/60 backdrop-blur-md shadow-lg flex items-center gap-1.5 transition-all duration-200 hover:scale-110 cursor-pointer group text-left select-none"
+              className="absolute top-0 left-0 text-xs font-sans font-medium text-gray-300 hover:text-white hover:scale-110 transition-all cursor-pointer select-none drop-shadow-[0_2px_5px_rgba(0,0,0,1)] tracking-wide"
               style={{ transition: 'opacity 0.25s, transform 0.05s' }}
             >
-              <span 
-                className="w-2 h-2 rounded-full shrink-0 shadow-sm"
-                style={{ backgroundColor: body.color, boxShadow: `0 0 8px ${body.color}` }}
-              />
-              <span className="text-[11px] font-sans font-medium text-gray-200 group-hover:text-white">
-                {body.name}
-              </span>
+              {body.name}
             </button>
           ))}
 
@@ -342,7 +333,7 @@ export default function OrbitalScene({ onSelect }) {
           <span>Arraste para orbitar o Sistema</span>
         </div>
 
-        {/* Controles Flutuantes da Câmera (Clean & Minimalista) */}
+        {/* Controles Flutuantes da Câmera (Clean & Minimalista, sem botão pausar) */}
         <div className="absolute bottom-4 right-4 sm:right-6 flex items-center gap-2 z-20">
           <button
             type="button"
@@ -373,35 +364,18 @@ export default function OrbitalScene({ onSelect }) {
           >
             <RotateCcw size={15} />
           </button>
-
-          <button
-            type="button"
-            onClick={() => setPlaying(p => !p)}
-            className="px-3.5 h-9 rounded-full bg-midnight-900/80 hover:bg-white/15 border border-white/15 text-gray-300 hover:text-white flex items-center gap-1.5 transition-all backdrop-blur-md cursor-pointer shadow-md text-xs font-mono"
-            title={playing ? 'Pausar translação' : 'Animar translação'}
-            aria-label={playing ? 'Pausar translação' : 'Animar translação'}
-          >
-            {playing ? <Pause size={14} className="text-celestial-gold" /> : <Play size={14} className="text-celestial-gold" />}
-            <span className="hidden sm:inline">{playing ? 'Pausar' : 'Girar'}</span>
-          </button>
         </div>
       </div>
 
-      {/* ── DOCK DE SELEÇÃO RÁPIDA DOS ASTROS ── */}
-      <div className="w-full max-w-4xl mt-6 flex items-center justify-center gap-2 flex-wrap px-2">
+      {/* ── SELEÇÃO RÁPIDA DOS ASTROS: APENAS OS NOMES LIMPOS ── */}
+      <div className="w-full max-w-4xl mt-6 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-2">
         {BODIES.map(body => (
           <button
             key={body.id}
             onClick={() => onSelect(body.id)}
-            className="group px-3.5 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.09] border border-white/10 hover:border-celestial-gold/50 text-xs font-mono transition-all duration-200 flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+            className="px-3 py-1.5 rounded-full text-xs font-sans text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
           >
-            <span 
-              className="w-2 h-2 rounded-full transition-transform group-hover:scale-125"
-              style={{ backgroundColor: body.color }}
-            />
-            <span className="text-gray-300 group-hover:text-white font-medium">
-              {body.name}
-            </span>
+            {body.name}
           </button>
         ))}
       </div>

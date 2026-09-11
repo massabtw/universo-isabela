@@ -25,7 +25,7 @@ export default function SolarSystemMap() {
       </motion.div> : <motion.div key="inspection" className="solar-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }}>
         <div className="planet-navigation">
           <button className="text-command" onClick={() => setSelected(null)}><ArrowLeft size={18} aria-hidden="true" /> Voltar para as Órbitas</button>
-          <div className="planet-picker">{BODIES.map(item => <button key={item.id} aria-pressed={item.id === selected} onClick={() => select(item.id)}><span style={{ background: item.color }} />{item.name}</button>)}</div>
+          <div className="planet-picker">{BODIES.map(item => <button key={item.id} aria-pressed={item.id === selected} onClick={() => select(item.id)}>{item.name}</button>)}</div>
         </div>
         <div className="planet-inspection" key={body.id}>
           <motion.div className="planet-model" initial={{ opacity: 0, scale: reduced ? 1 : 0.55 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: reduced ? 0 : 1.15, ease: [0.16, 1, 0.3, 1] }}>
