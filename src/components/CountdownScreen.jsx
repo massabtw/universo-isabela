@@ -1,20 +1,22 @@
 /**
  * ====================================================================
- * CountdownScreen.jsx — Tela de Espera Cósmica & Big Bang (Ultra Otimizado)
+ * CountdownScreen.jsx — Redesign: Split Layout com Lua Fotorrealista
  * ====================================================================
  *
- * Design Clean & Moderno (Espaço Profundo / Dark Space):
- * - 60-120 FPS garantidos (sem shadowBlur pesado, sem lag)
- * - Tipografia editorial minimalista de alto luxo
- * - Transição cinemática de Big Bang instantânea e impactante (2 segundos)
- * - Efeito de expansão cósmica por linhas de velocidade estelar e clarão de luz
+ * Layout partido esquerda/direita:
+ * - Esquerda: título "Aniversário / da Bela." (Bela. em dourado),
+ *   subtítulo, contador D·H·M·S alinhado à esquerda, CTA dourado
+ * - Direita: espaço reservado para a Lua (vem do MoonLayer em App.jsx)
+ *
+ * Eventos: onPhaseChange("bigbang") ao disparar Big Bang,
+ *          onComplete() depois de 2.9s para abrir o universo.
  */
 
 import { getTimeLeft } from "../utils/countdown";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Áudio cósmico sintetizado instantâneo e leve
+// Áudio cósmico sintetizado
 function playBigBangBoom() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -23,7 +25,6 @@ function playBigBangBoom() {
     if (ctx.state === "suspended") ctx.resume();
     const now = ctx.currentTime;
 
-    // Sub-bass impact
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
@@ -36,7 +37,6 @@ function playBigBangBoom() {
     osc.start(now);
     osc.stop(now + 1.8);
 
-    // Noise wash
     const bufferSize = Math.floor(ctx.sampleRate * 1.5);
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -58,49 +58,33 @@ function playBigBangBoom() {
   } catch (e) {}
 }
 
-export default function CountdownScreen({ targetDate, onComplete }) {
+export default function CountdownScreen({ targetDate, onComplete, onPhaseChange }) {
   const [isExploding, setIsExploding] = useState(false);
   const [flashOpacity, setFlashOpacity] = useState(0);
-
   const canvasRef = useRef(null);
   const animIdRef = useRef(null);
 
-  // Cálculo de tempo
   const calculateTimeLeft = () => getTimeLeft(targetDate);
-
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
 
-  // Disparo cinematográfico e fluido do Big Bang
   const triggerBigBang = () => {
     if (isExploding) return;
     setIsExploding(true);
     playBigBangBoom();
+    onPhaseChange?.("bigbang");
 
-    // 1. Clarão imediato
     setFlashOpacity(1);
-
-    // 2. Inicia efeito warp no canvas
     startWarpStars();
 
-    // 3. Dissolve o clarão suavemente
-    setTimeout(() => {
-      setFlashOpacity(0);
-    }, 550);
-
-    // 4. Conclui e entra no site com transição natural em 2.9s
-    setTimeout(() => {
-      onComplete();
-    }, 2900);
+    setTimeout(() => setFlashOpacity(0), 550);
+    setTimeout(() => onComplete(), 2900);
   };
 
-  // Efeito do relógio
   useEffect(() => {
     if (isExploding) return;
-
     const tick = () => {
       const current = calculateTimeLeft();
       if (current.diff <= 0) {
-
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         triggerBigBang();
       } else {
@@ -115,7 +99,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     };
   }, [targetDate, isExploding]);
 
-  // Canvas leve e otimizado (60 FPS garantidos)
+  // Canvas de estrelas de fundo
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -131,31 +115,26 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     };
     window.addEventListener("resize", handleResize);
 
-    // 100 estrelas estáticas de fundo (custo de renderização quase zero)
-    const stars = Array.from({ length: 90 }, () => ({
+    const stars = Array.from({ length: 110 }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      r: Math.random() * 1.5 + 0.5,
-      alpha: Math.random() * 0.7 + 0.3,
-      pulse: Math.random() * 0.02 + 0.005,
+      r: Math.random() * 1.3 + 0.3,
+      alpha: Math.random() * 0.6 + 0.2,
+      pulse: Math.random() * 0.012 + 0.004,
     }));
 
     let frame = 0;
     const loop = () => {
       frame++;
       ctx.clearRect(0, 0, width, height);
-
-      // Renderização simples e super rápida sem filtros caros
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
-        const a = s.alpha + Math.sin(frame * s.pulse) * 0.2;
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, Math.min(1, a))})`;
+        const a = s.alpha + Math.sin(frame * s.pulse) * 0.18;
+        ctx.fillStyle = `rgba(255,255,255,${Math.max(0.05, Math.min(1, a))})`;
         ctx.fillRect(s.x, s.y, s.r, s.r);
       }
-
       animIdRef.current = requestAnimationFrame(loop);
     };
-
     loop();
 
     return () => {
@@ -164,7 +143,6 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     };
   }, []);
 
-  // Efeito warp de linhas de velocidade cósmica para o Big Bang
   const startWarpStars = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -174,75 +152,54 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     const cx = width / 2;
     const cy = height / 2;
 
-    // Cancela loop estático
     cancelAnimationFrame(animIdRef.current);
 
-    // 180 feixes de velocidade partindo do centro
     const streaks = Array.from({ length: 180 }, () => {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 25 + 15;
       return {
-        x: cx,
-        y: cy,
+        x: cx, y: cy,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        length: Math.random() * 40 + 20,
         color: Math.random() > 0.3 ? "#FFFFFF" : Math.random() > 0.5 ? "#E5C483" : "#80D0FF",
         alpha: 1,
       };
     });
 
     const renderWarp = () => {
-      // Deixa rastro suave de movimento cósmico
       ctx.fillStyle = "rgba(4, 7, 20, 0.25)";
       ctx.fillRect(0, 0, width, height);
-
       streaks.forEach((s) => {
         s.x += s.vx;
         s.y += s.vy;
-        s.vx *= 1.03; // acelera suavemente
+        s.vx *= 1.03;
         s.vy *= 1.03;
-
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
         ctx.lineTo(s.x - s.vx * 1.5, s.y - s.vy * 1.5);
         ctx.stroke();
       });
-
       animIdRef.current = requestAnimationFrame(renderWarp);
     };
-
     renderWarp();
   };
 
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-[#040714] text-white select-none">
-      
-      {/* ── CANVAS DE ESTRELAS DE ALTA PERFORMANCE ── */}
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#03070E] text-white select-none">
+      {/* ── CANVAS DE ESTRELAS ── */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
-      {/* ── NEBULOSA CÓSMICA PROFUNDA & SUTIL ── */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle at 50% 50%, rgba(20, 32, 65, 0.4) 0%, rgba(4, 7, 20, 0.95) 75%)"
-        }}
-      />
-
-      {/* ── ANEL ORBITAL CLEAN DISCRETO ── */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full border border-white/[0.03] pointer-events-none z-0" />
-
-      {/* ── CLARÃO DO BIG BANG (HARDWARE ACCELERATED) ── */}
-      <div 
+      {/* ── CLARÃO DO BIG BANG ── */}
+      <div
         className="absolute inset-0 bg-white pointer-events-none z-50 transition-opacity duration-700 ease-out"
         style={{ opacity: flashOpacity }}
       />
 
-      {/* ── ONDA DE EXPANSÃO ÓPTICA ── */}
+      {/* ── ONDA DE EXPANSÃO ── */}
       {isExploding && (
         <motion.div
           initial={{ scale: 0.1, opacity: 0.9 }}
@@ -252,117 +209,132 @@ export default function CountdownScreen({ targetDate, onComplete }) {
         />
       )}
 
-      {/* ── CONTEÚDO PRINCIPAL (CLEAN & MODERNO) ── */}
+      {/* ── HEADER (aparece depois da explosão) ── */}
       <AnimatePresence>
-        {!isExploding && (
+        {isExploding && (
           <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="relative z-10 flex flex-col items-center text-center px-4 max-w-2xl w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-8 pt-6"
           >
-            {/* Tag superior fina */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="w-8 h-[1px] bg-celestial-gold/40" />
-              <span className="text-[11px] uppercase tracking-[0.35em] text-celestial-gold font-mono">
-                14 de Setembro de 2026
-              </span>
-              <span className="w-8 h-[1px] bg-celestial-gold/40" />
-            </div>
-
-            {/* Título Principal */}
-            <h1 className="font-serif text-3xl sm:text-5xl text-celestial-starlight tracking-tight mb-2">
-              Aniversário da Bela
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-400 font-light mb-12 sm:mb-16">
-              O cosmos aguarda o início dos seus 19 anos.
-            </p>
-
-            {/* ── NÚMEROS DO CRONÔMETRO (MINIMALISTAS & ELEGANTES) ── */}
-            <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8 mb-14">
-              {/* Dias */}
-              <div className="flex flex-col items-center">
-                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
-                  {pad(timeLeft.days)}
-                </span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
-                  dias
-                </span>
-              </div>
-
-              <span className="font-serif text-2xl sm:text-4xl text-white/20 -mt-6">:</span>
-
-              {/* Horas */}
-              <div className="flex flex-col items-center">
-                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
-                  {pad(timeLeft.hours)}
-                </span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
-                  horas
-                </span>
-              </div>
-
-              <span className="font-serif text-2xl sm:text-4xl text-white/20 -mt-6">:</span>
-
-              {/* Minutos */}
-              <div className="flex flex-col items-center">
-                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
-                  {pad(timeLeft.minutes)}
-                </span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
-                  min
-                </span>
-              </div>
-
-              <span className="font-serif text-2xl sm:text-4xl text-white/20 -mt-6">:</span>
-
-              {/* Segundos */}
-              <div className="flex flex-col items-center">
-                <span className="tabular-nums font-serif text-4xl sm:text-6xl md:text-7xl font-light text-white tracking-tight">
-                  {pad(timeLeft.seconds)}
-                </span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-gray-400 mt-2 font-mono">
-                  seg
-                </span>
-              </div>
-            </div>
-
-            {/* ── BOTÃO DISCRETO E CLEAN DE SIMULAÇÃO ── */}
-            <button
-              onClick={triggerBigBang}
-              className="px-5 py-2 rounded-full border border-white/10 hover:border-celestial-gold/50 bg-white/[0.02] hover:bg-white/[0.06] text-xs font-mono uppercase tracking-[0.25em] text-gray-400 hover:text-celestial-gold transition-all duration-300 cursor-pointer active:scale-95"
-            >
-              Simular 00:00:00 (Big Bang)
-            </button>
+            <span className="font-serif text-sm text-celestial-starlight tracking-wide">
+              Universo da Isabela
+            </span>
+            <span className="text-[11px] font-mono text-gray-400 tracking-widest">
+              14 · 09 · 2026
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── MENSAGEM DO BIG BANG EM EXPANSÃO ── */}
-      {isExploding && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ delay: 0.35, duration: 0.9 }}
-          className="relative z-30 flex flex-col items-center text-center px-4"
-        >
-          <span className="text-[11px] uppercase tracking-[0.4em] text-celestial-gold font-mono mb-2">
-            Gênese Cósmica
-          </span>
-          <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight leading-tight">
-            A exposição espacial começa
-          </h2>
-        </motion.div>
-      )}
+      {/* ── CONTEÚDO SPLIT: ESQUERDA ── */}
+      <div className="relative z-10 min-h-screen flex flex-col md:flex-row">
 
-      {/* Assinatura discreta no rodapé */}
-      <div className="absolute bottom-6 text-[10px] text-gray-500 font-mono tracking-[0.25em] uppercase z-10">
-        Isabela Marty • 14.09.2007
+        {/* COLUNA ESQUERDA — Textos do countdown */}
+        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[600px]">
+
+          <AnimatePresence mode="wait">
+            {!isExploding ? (
+              /* ── ESTADO NORMAL: Countdown ── */
+              <motion.div
+                key="countdown-content"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                className="flex flex-col"
+              >
+                {/* Data no topo */}
+                <p className="text-[11px] font-mono tracking-[0.35em] text-gray-500 mb-6 uppercase">
+                  14 de Setembro de 2026
+                </p>
+
+                {/* Título principal em 2 linhas */}
+                <h1 className="font-serif leading-[1.05] mb-5">
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                    Aniversário
+                  </span>
+                  <span className="block text-4xl sm:text-5xl lg:text-6xl">
+                    <span className="text-white">da </span>
+                    <span className="text-[#E5C483]">Bela.</span>
+                  </span>
+                </h1>
+
+                <p className="text-sm text-gray-400 font-light mb-10 max-w-xs leading-relaxed">
+                  O cosmos aguarda o início dos seus 19 anos.
+                </p>
+
+                {/* Contador — alinhado à esquerda, sem centrar */}
+                <div className="flex items-end gap-5 sm:gap-8 mb-10">
+                  {[
+                    { value: timeLeft.days, label: "dias" },
+                    { value: timeLeft.hours, label: "horas" },
+                    { value: timeLeft.minutes, label: "min" },
+                    { value: timeLeft.seconds, label: "seg" },
+                  ].map(({ value, label }, i) => (
+                    <div key={label} className="flex flex-col items-start">
+                      <span className="tabular-nums font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-white leading-none tracking-tight">
+                        {pad(value)}
+                      </span>
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-gray-500 mt-1.5 font-mono">
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA dourado sólido */}
+                <button
+                  onClick={triggerBigBang}
+                  className="self-start flex items-center gap-2.5 px-6 py-3 rounded-sm bg-[#E5C483] hover:bg-[#D4B070] text-[#03070E] text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer active:scale-95 shadow-[0_0_25px_rgba(229,196,131,0.35)]"
+                >
+                  Antecipar o Big Bang
+                  <span className="text-base">↗</span>
+                </button>
+
+                {/* Rodapé da esquerda */}
+                <div className="flex items-center gap-6 mt-12 pt-6 border-t border-white/[0.07]">
+                  <span className="text-[11px] font-mono text-gray-500">Isabela Marty</span>
+                  <span className="text-[11px] font-mono text-gray-600">O seu lugar entre as estrelas.</span>
+                  <span className="text-[11px] font-mono text-gray-500 ml-auto hidden sm:block">Desde 14.09.2007</span>
+                </div>
+              </motion.div>
+            ) : (
+              /* ── ESTADO PÓS BIG BANG ── */
+              <motion.div
+                key="bigbang-content"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.35, duration: 0.9 }}
+                className="flex flex-col items-start"
+              >
+                {/* Nada — os textos sumiram, só a mensagem central na tela */}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* COLUNA DIREITA — Espaço reservado para a Lua (MoonLayer é fixed) */}
+        <div className="hidden md:block md:w-1/2 flex-1" aria-hidden="true" />
       </div>
 
+      {/* ── MENSAGEM "A exposição espacial começa" (centralizada na tela pós-bang) ── */}
+      <AnimatePresence>
+        {isExploding && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.5, duration: 1.0 }}
+            className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
+          >
+            <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight text-center px-6">
+              A exposição espacial começa
+            </h2>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-

@@ -3,11 +3,8 @@
  * App.jsx — Universo da Isabela (Dark Luxury)
  * ============================================
  *
- * Experiência imersiva focada no cosmos, na Lua
- * de 14/09/2007, mapa orbital do Sistema Solar em ordem
- * a partir do Sol (com a Lua como satélite da Terra),
- * curiosidades astronômicas (Marty/Marte, Cratera Isabella em Vênus),
- * galeria de astrofotografia e celebração dos 19 anos.
+ * MoonLayer: layer fixa global que persiste entre CountdownScreen e HeroSection.
+ * Fases: "countdown" → "bigbang" → "hero"
  */
 
 import { useState } from "react";
@@ -16,9 +13,11 @@ import { BIRTHDAY_DATE } from "./config";
 
 // Componentes do Universo
 import CountdownScreen from "./components/CountdownScreen";
+import MoonLayer from "./components/MoonLayer";
 import SmoothScroll from "./components/SmoothScroll";
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
+import GalaxySection from "./components/GalaxySection";
 import MoonPhase from "./components/MoonPhase";
 import VirgoConstellation from "./components/VirgoConstellation";
 import SolarSystemMap from "./components/SolarSystemMap";
@@ -29,18 +28,40 @@ import FloatingParticles from "./components/FloatingParticles";
 import MusicPlayer from "./components/MusicPlayer";
 
 export default function App() {
-  // Verifica se a data do aniversário já passou
   const [isMuseumOpen, setIsMuseumOpen] = useState(() => {
     return new Date() >= new Date(BIRTHDAY_DATE);
   });
 
+  // Fase da Lua: controla a posição/tamanho da MoonLayer
+  const [moonPhase, setMoonPhase] = useState("countdown");
+
   const handleCountdownComplete = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
+    setMoonPhase("hero");
     setIsMuseumOpen(true);
+  };
+
+  const handlePhaseChange = (phase) => {
+    setMoonPhase(phase);
   };
 
   return (
     <div className="min-h-screen bg-midnight-950 text-celestial-starlight selection:bg-celestial-glow selection:text-midnight-950">
+
+      {/* ── LUA FOTORREALISTA GLOBAL (persiste entre countdown e hero) ── */}
+      {/* Visível apenas quando o museu não está aberto OU quando está na hero */}
+      <AnimatePresence>
+        {(!isMuseumOpen || moonPhase === "hero") && (
+          <motion.div
+            key="moon-layer"
+            initial={false}
+            exit={{ opacity: 0, transition: { duration: 1, delay: 1.5 } }}
+          >
+            <MoonLayer phase={moonPhase} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {!isMuseumOpen ? (
           /* ── Tela de Bloqueio: Contagem Regressiva ── */
@@ -52,6 +73,7 @@ export default function App() {
             <CountdownScreen
               targetDate={BIRTHDAY_DATE}
               onComplete={handleCountdownComplete}
+              onPhaseChange={handlePhaseChange}
             />
           </motion.div>
         ) : (
@@ -63,38 +85,41 @@ export default function App() {
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="relative"
           >
-            {/* Céu estrelado flutuante e Via Láctea com meteoros */}
+            {/* Céu estrelado flutuante */}
             <FloatingParticles />
 
-            {/* Player de música (The Weeknd) */}
+            {/* Player de música */}
             <MusicPlayer />
 
-            {/* Cabeçalho de navegação */}
+            {/* Navegação */}
             <SmoothScroll />
             <Header />
 
-            {/* Entrada Cinematográfica */}
+            {/* Entrada Editorial com Lua */}
             <HeroSection />
+
+            {/* Via Láctea — Nebulosa via scroll */}
+            <GalaxySection />
 
             {/* O Astro Favorito: A Lua exata de 14/09/2007 */}
             <MoonPhase />
 
-            {/* A Constelação de Virgem (Mapa de Estrelas Puro) */}
+            {/* A Constelação de Virgem */}
             <VirgoConstellation />
 
-            {/* ── MAPA ORBITAL DO SISTEMA SOLAR (Com Zoom 3D Imersivo Integrado) ── */}
+            {/* Mapa Orbital do Sistema Solar */}
             <SolarSystemMap />
 
-            {/* ── CALCULADORA CÓSMICA & FÍSICA RELATIVÍSTICA ── */}
+            {/* Calculadora Cósmica */}
             <CosmicAgeCalculator />
 
-            {/* Galeria de Fotos da Lua & Astrofotografia da Bela */}
+            {/* Galeria de Fotos */}
             <MoonGallery />
 
-            {/* Carta Pessoal no Envelope Selado */}
+            {/* Carta Pessoal */}
             <ClosingMessage />
 
-            {/* Rodapé Minimalista Celestial */}
+            {/* Rodapé */}
             <footer className="py-16 text-center border-t border-white/[0.06] bg-midnight-950/80 backdrop-blur-md relative z-10">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-12 h-px bg-gradient-to-r from-transparent to-celestial-gold/40" />
@@ -104,10 +129,13 @@ export default function App() {
               <p className="text-xs uppercase tracking-[0.35em] text-gray-400 font-mono">
                 Feito com amor para a Bebela • 14.09.2007
               </p>
-              
+
               <div className="mt-6">
                 <button
-                  onClick={() => setIsMuseumOpen(false)}
+                  onClick={() => {
+                    setMoonPhase("countdown");
+                    setIsMuseumOpen(false);
+                  }}
                   className="px-4 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-celestial-gold/40 text-[11px] font-mono uppercase tracking-[0.2em] text-gray-400 hover:text-celestial-gold transition-all duration-300 cursor-pointer"
                 >
                   ⏳ Retornar à Tela de Espera & Big Bang

@@ -16,9 +16,9 @@ const NAV_ITEMS = [
   { label: "A Lua", href: "#lua", icon: "🌙", subtitle: "Fase de 14/09/2007" },
   { label: "Constelação", href: "#constelacao", icon: "✧", subtitle: "Virgem no Céu Estelar" },
   { label: "Sistema Solar", href: "#sistema-solar", icon: "🪐", subtitle: "Órbitas e Modelos 3D" },
-  { label: "Calculadora", href: "#calculadora-cosmica", icon: "⏳", subtitle: "Sua Idade no Cosmos" },
   { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
   { label: "Carta", href: "#mensagem", icon: "💌", subtitle: "Envelope Selado" },
+  { label: "19 anos", href: "#calculadora-cosmica", icon: "⏳", subtitle: "Sua Idade no Cosmos", highlight: true },
 ];
 
 export default function Header() {
@@ -89,7 +89,6 @@ export default function Header() {
             </div>
           </a>
 
-          {/* Navegação Desktop (visível a partir de md) */}
           <nav className="hidden md:flex items-center gap-5 lg:gap-7">
             {NAV_ITEMS.map((item) => (
               <a
@@ -99,7 +98,11 @@ export default function Header() {
                   e.preventDefault();
                   handleNavClick(item.href);
                 }}
-                className="text-[11px] uppercase tracking-[0.2em] text-gray-400 hover:text-celestial-gold transition-colors duration-300 font-sans cursor-pointer py-1"
+                className={`text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 font-sans cursor-pointer py-1 ${
+                  item.highlight
+                    ? "text-celestial-gold font-medium"
+                    : "text-gray-400 hover:text-celestial-gold"
+                }`}
               >
                 {item.label}
               </a>
