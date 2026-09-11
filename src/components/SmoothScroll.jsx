@@ -16,11 +16,13 @@ export default function SmoothScroll() {
         allowNestedScroll: true,
         prevent: node => node.closest?.('[role="dialog"], [data-lenis-prevent]'),
       });
+      window.lenis = lenis;
     };
     configure();
     preference.addEventListener('change', configure);
     return () => {
       preference.removeEventListener('change', configure);
+      window.lenis = null;
       lenis?.destroy();
     };
   }, []);

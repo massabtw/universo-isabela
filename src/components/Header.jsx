@@ -73,21 +73,35 @@ export default function Header() {
   }, []);
 
   const handleNavClick = (item) => {
+    // Desbloqueia overflow e inert imediatamente se a sidebar estiver aberta
+    document.body.style.overflow = '';
+    const background = [document.querySelector('main'), document.querySelector('.music-player')].filter(Boolean);
+    background.forEach(element => element.inert = false);
     setIsMobileMenuOpen(false);
     
-    if (item.action === 'games' || item.href === '#mini-games') {
-      window.dispatchEvent(new CustomEvent('open-cosmic-tab', { detail: { tab: 'salto' } }));
-      const target = document.querySelector('#mini-games') || document.querySelector('#calculadora-cosmica');
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      if (item.action === 'games' || item.href === '#mini-games') {
+        window.dispatchEvent(new CustomEvent('open-cosmic-tab', { detail: { tab: 'salto' } }));
+        const target = document.querySelector('#mini-games') || document.querySelector('#calculadora-cosmica');
+        if (target) {
+          if (window.lenis) {
+            window.lenis.scrollTo(target, { offset: -60, duration: 1.2 });
+          } else {
+            target.scrollIntoView({ behavior: "smooth" });
+          }
+        }
+        return;
       }
-      return;
-    }
 
-    const target = document.querySelector(item.href);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-    }
+      const target = document.querySelector(item.href);
+      if (target) {
+        if (window.lenis) {
+          window.lenis.scrollTo(target, { offset: -60, duration: 1.2 });
+        } else {
+          target.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }, 60);
   };
 
   return (
