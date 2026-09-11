@@ -3,15 +3,15 @@
  * GalaxySection.jsx — Via Láctea Espiral Cinemática (Three.js 3D)
  * ====================================================================
  *
- * Uma galáxia espiral fotorrealista com 45.000 partículas estelares,
- * núcleo dourado volumétrico, braços espirais logarítmicos e rotação cósmica.
+ * Uma galáxia espiral fotorrealista com 42.000 partículas estelares,
+ * núcleo dourado volumétrico, braços espirais logarítmicos e rotação contínua.
  *
- * Comportamento de Scroll:
- * 1. No início (scroll = 0): A galáxia fica no canto superior direito
- *    com o texto no centro: "Toda estrela tem uma história. Esta viagem é a sua."
- * 2. Conforme você rola: A galáxia viaja suavemente até o centro da tela
- *    e se aproxima da câmera (zoom in dramático preenchendo a tela).
- * 3. Ao aproximar completamente: O scroll desce naturalmente para a próxima seção.
+ * 3 Atos de Animação no Scroll:
+ * 1. Ato 1 (Scroll 0.0 -> 0.45): A galáxia viaja do canto superior direito até o centro.
+ * 2. Ato 2 (Scroll 0.45 -> 0.70): A galáxia se centraliza, amplia e revela o coração estelar.
+ * 3. Ato 3 (Scroll 0.70 -> 1.00): SAÍDA HIPERESPACIAL (Fly-through / Warp)!
+ *    As estrelas mergulham em direção à câmera e ultrapassam o observador
+ *    com aceleração cósmica contínua, conectando suavemente com a próxima tela!
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -22,10 +22,9 @@ export default function GalaxySection() {
   const mountRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Referência para sincronizar o scroll com o loop do Three.js
+  // Sincronização 60-120 FPS do scroll com o loop do Three.js
   const progressRef = useRef(0);
 
-  // Monitora o scroll com alta precisão
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -55,7 +54,6 @@ export default function GalaxySection() {
     };
   }, []);
 
-  // Inicialização e renderização da Galáxia em Three.js
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
@@ -77,7 +75,7 @@ export default function GalaxySection() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);
 
-    // 2. Textura radial difusa das estrelas (sem artefatos quadrados)
+    // 2. Textura radial difusa das estrelas
     const createStarTexture = () => {
       const canvas = document.createElement("canvas");
       canvas.width = 64;
@@ -85,8 +83,8 @@ export default function GalaxySection() {
       const ctx = canvas.getContext("2d");
       const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
       gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-      gradient.addColorStop(0.18, "rgba(255, 240, 200, 0.85)");
-      gradient.addColorStop(0.45, "rgba(200, 220, 255, 0.28)");
+      gradient.addColorStop(0.2, "rgba(255, 240, 200, 0.85)");
+      gradient.addColorStop(0.48, "rgba(200, 220, 255, 0.28)");
       gradient.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, 64, 64);
@@ -101,7 +99,7 @@ export default function GalaxySection() {
     // Parâmetros da Espiral Galáctica
     const particleCount = 42000;
     const branches = 3;
-    const radius = 6.8;
+    const radius = 7.0;
     const spin = 0.95;
 
     const positions = new Float32Array(particleCount * 3);
@@ -115,12 +113,10 @@ export default function GalaxySection() {
     for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3;
 
-      // Distribuição de raio com concentração densa no centro
       const r = Math.pow(Math.random(), 2.1) * radius;
       const branchAngle = ((i % branches) * 2 * Math.PI) / branches;
       const spinAngle = r * spin;
 
-      // Dispersão tridimensional (mais espessa no núcleo, afilada nos braços)
       const randomPower = 2.8;
       const randomX = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5 ? 1 : -1) * 0.35 * (r + 0.3);
       const randomY = Math.pow(Math.random(), randomPower) * (Math.random() < 0.5 ? 1 : -1) * 0.22 * (r + 0.2);
@@ -130,7 +126,6 @@ export default function GalaxySection() {
       positions[i3 + 1] = randomY;
       positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * r + randomZ;
 
-      // Mistura de cor por distância do núcleo
       let mixedColor;
       if (r < 1.2) {
         mixedColor = colorCore.clone().lerp(colorInside, r / 1.2);
@@ -140,7 +135,6 @@ export default function GalaxySection() {
         mixedColor = colorMid.clone().lerp(colorOutside, (r - 3.8) / (radius - 3.8));
       }
 
-      // Variação estelar individual
       const brightness = Math.random() * 0.3 + 0.7;
       colors[i3] = mixedColor.r * brightness;
       colors[i3 + 1] = mixedColor.g * brightness;
@@ -152,7 +146,7 @@ export default function GalaxySection() {
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.052,
+      size: 0.054,
       sizeAttenuation: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -188,10 +182,9 @@ export default function GalaxySection() {
       depthWrite: false,
     });
     const coreSprite = new THREE.Sprite(coreGlowMaterial);
-    coreSprite.scale.set(3.4, 3.4, 1);
+    coreSprite.scale.set(3.6, 3.6, 1);
     galaxyGroup.add(coreSprite);
 
-    // Halo estelar externo suave
     const outerHaloMaterial = new THREE.SpriteMaterial({
       map: createCoreGlowTexture(),
       color: 0x93c5fd,
@@ -201,10 +194,10 @@ export default function GalaxySection() {
       depthWrite: false,
     });
     const outerHaloSprite = new THREE.Sprite(outerHaloMaterial);
-    outerHaloSprite.scale.set(6.8, 6.8, 1);
+    outerHaloSprite.scale.set(7.2, 7.2, 1);
     galaxyGroup.add(outerHaloSprite);
 
-    // 5. Loop de Animação 60-120 FPS
+    // 5. Loop de Animação Cinemático e Contínuo no Scroll
     let animationFrameId;
     const clock = new THREE.Clock();
 
@@ -212,19 +205,51 @@ export default function GalaxySection() {
       const elapsedTime = clock.getElapsedTime();
       const p = progressRef.current; // progresso do scroll de 0 a 1
 
-      // Rotação cósmica lenta e viva
-      galaxyGroup.rotation.y = elapsedTime * 0.045;
+      // Rotação viva contínua da galáxia que acelera sutilmente no mergulho
+      const rotationSpeed = p > 0.7 ? 0.045 + (p - 0.7) * 0.12 : 0.045;
+      galaxyGroup.rotation.y = elapsedTime * rotationSpeed;
 
-      // ─── SCROLL INTERATIVO: DO TOPO-DIREITO AO CENTRO + APROXIMAÇÃO ───
-      // progress 0: No canto superior direito (x: 2.8, y: 1.4, z: -3.6)
-      // progress 0.85+: No centro exato e aproximada (x: 0, y: 0, z: 1.4)
-      const targetX = 2.8 * (1 - Math.min(1, p * 1.25));
-      const targetY = 1.4 * (1 - Math.min(1, p * 1.25));
-      const targetZ = -3.6 + Math.min(1, p * 1.15) * 5.0; // aproximação de -3.6 até +1.4
-      const targetScale = 0.65 + Math.min(1, p * 1.15) * 0.75; // escala de 0.65 até 1.4
-      const targetTilt = 0.82 - p * 0.3; // perspectiva de inclinação suave
+      // ─── ANIMAÇÃO DINÂMICA EM 3 ATOS NO SCROLL (NADA ESTÁTICO!) ───
+      let targetX = 0;
+      let targetY = 0;
+      let targetZ = 0;
+      let targetScale = 1;
+      let targetTilt = 0.8;
 
-      // Interpolação suave (lerp) para máxima fluidez
+      if (p <= 0.45) {
+        // Ato 1: A Galáxia viaja do canto superior direito ao centro
+        const t = p / 0.45;
+        targetX = 2.8 * (1 - t);
+        targetY = 1.4 * (1 - t);
+        targetZ = -3.5 + t * 3.5;       // de -3.5 até 0.0
+        targetScale = 0.65 + t * 0.35;  // de 0.65 até 1.0
+        targetTilt = 0.82 - t * 0.25;
+      } else if (p <= 0.70) {
+        // Ato 2: Centralizada, expande e revela o coração dourado
+        const t = (p - 0.45) / 0.25;
+        targetX = 0;
+        targetY = 0;
+        targetZ = 0.0 + t * 2.2;        // de 0.0 até 2.2 (aproximação grandiosa)
+        targetScale = 1.0 + t * 0.35;   // de 1.0 até 1.35
+        targetTilt = 0.57 - t * 0.15;
+      } else {
+        // Ato 3: O MERGULHO HIPERESPACIAL / SAÍDA DE WARP (p de 0.70 a 1.0)
+        // As estrelas aceleram em direção à câmera e ultrapassam a tela!
+        const t = (p - 0.70) / 0.30;
+        targetX = 0;
+        targetY = 0;
+        targetZ = 2.2 + Math.pow(t, 1.4) * 14.0; // de 2.2 até +16.2 (fly-through cinematográfico!)
+        targetScale = 1.35 + t * 0.8;
+        targetTilt = 0.42;
+
+        // Desvanece suavemente o núcleo no fim do warp para transicionar à próxima tela
+        const fade = Math.max(0, 1 - t * 1.5);
+        coreSprite.material.opacity = fade;
+        outerHaloSprite.material.opacity = fade * 0.35;
+        material.opacity = Math.max(0.1, 1 - t * 0.8);
+      }
+
+      // Interpolação suave para máxima fluidez a 60 FPS
       galaxyGroup.position.x += (targetX - galaxyGroup.position.x) * 0.12;
       galaxyGroup.position.y += (targetY - galaxyGroup.position.y) * 0.12;
       galaxyGroup.position.z += (targetZ - galaxyGroup.position.z) * 0.12;
@@ -249,7 +274,7 @@ export default function GalaxySection() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Limpeza completa
+    // Limpeza completa de recursos GPU
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
@@ -265,17 +290,17 @@ export default function GalaxySection() {
     };
   }, []);
 
-  // Textos centrais da Imagem 4:
+  // Textos da Imagem 4:
   // "Toda estrela tem uma história. Esta viagem é a sua."
-  // Ficam nítidos no início e desvanecem conforme a galáxia centraliza e cresce
-  const textOpacity = Math.max(0, 1 - scrollProgress * 2.6);
-  const textTranslateY = scrollProgress * -25;
+  // Desvanecem suavemente conforme a galáxia centraliza
+  const textOpacity = Math.max(0, 1 - scrollProgress * 2.8);
+  const textTranslateY = scrollProgress * -35;
 
   return (
     <section
       ref={containerRef}
       className="relative z-20 w-full"
-      style={{ height: "230svh" }}
+      style={{ height: "250svh" }}
       id="galaxy"
     >
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-[#03070E]">
@@ -311,10 +336,10 @@ export default function GalaxySection() {
           </a>
         </div>
 
-        {/* Indicador de scroll discreto no rodapé */}
+        {/* Indicador de scroll dinâmico que reage ao progresso */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10 pointer-events-none"
-          style={{ opacity: Math.max(0, 1 - scrollProgress * 4) }}
+          style={{ opacity: Math.max(0, 1 - scrollProgress * 3.5) }}
         >
           <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">
             Role para explorar

@@ -1,8 +1,9 @@
 /**
  * ====================================================================
- * CountdownScreen.jsx — Split Layout Elegante com Lua Fotorrealista
+ * CountdownScreen.jsx — Split Layout Elegante com Lua Inteira
  * ====================================================================
  *
+ * - A Lua é exibida INTEIRA (sem corte na borda) na metade direita da tela
  * - Entrada suave da Lua com fade-in cinematográfico (sem glitch de spawn)
  * - Título em duas linhas: "Aniversário / da Bela." ("Bela." em dourado)
  * - Cronômetro D · H · MIN · SEG alinhado à esquerda
@@ -256,10 +257,10 @@ export default function CountdownScreen({ targetDate, onComplete }) {
       </AnimatePresence>
 
       {/* ── CONTEÚDO SPLIT: ESQUERDA & DIREITA ── */}
-      <div className="relative z-10 min-h-screen flex flex-col md:flex-row items-center">
+      <div className="relative z-10 min-h-screen flex flex-col md:flex-row items-center justify-between">
 
         {/* COLUNA ESQUERDA — Textos do countdown */}
-        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[620px] w-full">
+        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[600px] w-full">
           <AnimatePresence mode="wait">
             {!isExploding && (
               <motion.div
@@ -329,38 +330,36 @@ export default function CountdownScreen({ targetDate, onComplete }) {
           </AnimatePresence>
         </div>
 
-        {/* ── LUA FOTORREALISTA DA TELA DE ESPERA (com fade-in suave, sem spawn brusco) ── */}
+        {/* ── LUA FOTORREALISTA INTEIRA (100% VISÍVEL, SEM SER CORTADA NA BORDA) ── */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: isExploding ? 0.6 : 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-[-14vw] top-1/2 -translate-y-1/2 w-[clamp(380px,58vw,820px)] aspect-square pointer-events-none select-none z-10 hidden md:block"
+          className="relative md:mr-10 lg:mr-16 w-[clamp(320px,42vw,560px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
         >
-          {/* Halo suave cósmico */}
+          {/* Halo dourado e azul suave circundando o disco inteiro */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
               background:
-                "radial-gradient(circle at 35% 40%, rgba(180,160,120,0.2) 0%, rgba(60,50,30,0.08) 55%, transparent 75%)",
-              transform: "scale(1.15)",
-              filter: "blur(22px)",
+                "radial-gradient(circle at 45% 45%, rgba(229,196,131,0.25) 0%, rgba(120,167,217,0.12) 45%, transparent 70%)",
+              transform: "scale(1.2)",
+              filter: "blur(28px)",
             }}
           />
 
-          <img
-            src="/moon_full.jpg"
-            alt="Lua"
-            aria-hidden="true"
-            className="w-full h-full object-cover rounded-full"
-            style={{
-              maskImage:
-                "radial-gradient(circle at 50% 50%, black 58%, transparent 75%)",
-              WebkitMaskImage:
-                "radial-gradient(circle at 50% 50%, black 58%, transparent 75%)",
-              filter: "brightness(0.88) contrast(1.08) saturate(0.85)",
-            }}
-            draggable={false}
-          />
+          {/* Disco Lunar 100% Completo */}
+          <div className="relative w-full h-full rounded-full overflow-hidden shadow-[0_0_60px_rgba(229,196,131,0.2)] border border-white/[0.08]">
+            <img
+              src="/moon_full.jpg"
+              alt="Lua Cheia"
+              className="w-full h-full object-cover rounded-full"
+              style={{
+                filter: "brightness(0.92) contrast(1.08) saturate(0.9)",
+              }}
+              draggable={false}
+            />
+          </div>
         </motion.div>
       </div>
 
