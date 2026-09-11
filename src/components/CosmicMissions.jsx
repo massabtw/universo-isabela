@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Crosshair, Orbit, Play, RotateCcw, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Orbit, RotateCcw, Trophy, Sparkles, CheckCircle2, XCircle } from 'lucide-react';
 import { PLANETS_DATA } from '../data/planetsData';
 
 function shuffle(items) {
@@ -12,103 +12,193 @@ function shuffle(items) {
   return result;
 }
 
-function PlanetMission() {
+export default function CosmicMissions() {
   const [deck, setDeck] = useState(() => shuffle(PLANETS_DATA));
   const [round, setRound] = useState(0);
   const [answer, setAnswer] = useState(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [options, setOptions] = useState(() => shuffle([deck[0], ...shuffle(deck.slice(1)).slice(0, 3)]));
+
   const done = round === deck.length;
   const planet = deck[Math.min(round, deck.length - 1)];
+
   const choose = id => {
     if (answer !== null) return;
     setAnswer(id);
-    if (id === planet.id) { setScore(value => value + 100 + streak * 25); setStreak(value => value + 1); }
-    else setStreak(0);
-  };
-  const next = () => {
-    const nextRound = round + 1;
-    setRound(nextRound); setAnswer(null);
-    if (nextRound < deck.length) setOptions(shuffle([deck[nextRound], ...shuffle(deck.filter(p => p.id !== deck[nextRound].id)).slice(0, 3)]));
-  };
-  const reset = () => {
-    const nextDeck = shuffle(PLANETS_DATA);
-    setDeck(nextDeck); setRound(0); setScore(0); setStreak(0); setAnswer(null);
-    setOptions(shuffle([nextDeck[0], ...shuffle(nextDeck.slice(1)).slice(0, 3)]));
-  };
-  return <div className="mission-game">
-    <div className="mission-status"><span>{done ? 'Expedição concluída' : `Descoberta ${round + 1} de 8`}</span><span><Trophy size={16} aria-hidden="true" /> {score} pontos</span></div>
-    {done ? <div className="mission-result"><Orbit size={48} /><h3>O Sistema Solar é seu.</h3><p>{score} pontos nesta expedição.</p><button className="primary-command" onClick={reset}><RotateCcw size={18} /> Nova expedição</button></div> : <>
-      <div className="planet-challenge"><img src={`/planetas/orbs/${planet.id}.png`} alt={answer ? planet.name : 'Astro misterioso'} width="260" height="260" /><div><h3>Que mundo é este?</h3><p>{answer ? planet.name : 'Um novo astro apareceu no seu telescópio.'}</p><span className="streak-count">Sequência: {streak}</span></div></div>
-      <div className="mission-answers">{options.map(option => <button key={option.id} disabled={answer !== null} data-result={answer ? option.id === planet.id ? 'correct' : option.id === answer ? 'wrong' : '' : ''} onClick={() => choose(option.id)}>{option.name}</button>)}</div>
-      <div className="mission-feedback" aria-live="polite">{answer && <><p>{answer === planet.id ? 'Coordenadas confirmadas!' : `Era ${planet.name}. Próxima descoberta!`}</p><button className="text-command" onClick={next}>{round === 7 ? 'Ver resultado' : 'Próximo astro'}</button></>}</div>
-    </>}
-  </div>;
-}
-
-function SignalMission() {
-  const reduced = useReducedMotion();
-  const [round, setRound] = useState(1);
-  const [score, setScore] = useState(0);
-  const [running, setRunning] = useState(false);
-  const [result, setResult] = useState(null);
-  const [manual, setManual] = useState(0);
-  const [target, setTarget] = useState(61);
-  const [best, setBest] = useState(() => { try { return Number(localStorage.getItem('isabela-signal-best')) || 0; } catch { return 0; } });
-  const cursor = useRef(null);
-  const position = useRef(0);
-  const arena = useRef(null);
-  const band = Math.max(5, 14 - round * 1.5);
-  useEffect(() => {
-    if (!running || reduced) return;
-    let frame, elapsed = 0, previous;
-    let visible = true;
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
-    observer.observe(arena.current);
-    const tick = time => {
-      const delta = previous === undefined ? 0 : Math.min(time - previous, 60);
-      previous = time;
-      if (!document.hidden && visible) elapsed += delta;
-      position.current = (1 - Math.cos(elapsed * (0.0017 + round * 0.00023))) * 50;
-      if (cursor.current) cursor.current.style.left = `${position.current}%`;
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
-  }, [running, round, reduced]);
-  const capture = () => {
-    if (!running) { setRunning(true); return; }
-    const difference = Math.abs((reduced ? manual : position.current) - target);
-    const earned = difference <= band ? Math.round(100 * (1 - difference / (band * 1.25))) : 0;
-    setResult(earned); setRunning(false); setScore(value => value + earned);
-    if (round === 5 && score + earned > best) {
-      setBest(score + earned);
-      try { localStorage.setItem('isabela-signal-best', String(score + earned)); } catch { /* Storage is optional. */ }
+    if (id === planet.id) {
+      setScore(value => value + 100 + streak * 25);
+      setStreak(value => value + 1);
+    } else {
+      setStreak(0);
     }
   };
-  const next = () => { setRound(value => value + 1); setTarget(22 + Math.random() * 56); setResult(null); setManual(0); position.current = 0; if (cursor.current) cursor.current.style.left = '0%'; };
-  return <div className="mission-game" ref={arena}>
-    <div className="mission-status"><span>Transmissão {round} de 5</span><span><Trophy size={16} aria-hidden="true" /> {score} pontos</span></div>
-    <div className="signal-sky"><img src="/planetas/orbs/terra.png" alt="Terra" width="150" height="150" /><div className="signal-route"><span /><span /><span /></div><Crosshair size={58} aria-hidden="true" /></div>
-    <h3>Sinal distante</h3><p className="signal-objective">Capture o sinal na faixa iluminada.</p>
-    <div className="signal-track"><span className="signal-target" style={{ left: `${target - band}%`, width: `${band * 2}%` }} /><span className="signal-cursor" ref={cursor} style={reduced ? { left: `${manual}%` } : undefined} /></div>
-    {reduced && <label className="manual-signal">Frequência<input type="range" min="0" max="100" value={manual} onChange={e => setManual(Number(e.target.value))} /></label>}
-    <div className="signal-actions">
-      {result === null ? <button className="primary-command" onClick={capture}>{running ? <Crosshair size={18} /> : <Play size={18} />}{running ? 'Capturar sinal' : 'Iniciar transmissão'}</button> : round < 5 ? <button className="primary-command" onClick={next}>Próxima transmissão</button> : <button className="primary-command" onClick={() => { setRound(1); setScore(0); setResult(null); setTarget(61); }}><RotateCcw size={18} /> Jogar novamente</button>}
-      <span>Recorde: {best}</span>
-    </div>
-    <p className="mission-feedback" aria-live="polite">{result !== null ? `${result ? 'Sinal recebido' : 'Sinal perdido'} · +${result} pontos${round === 5 ? ' · Missão concluída' : ''}` : 'Aguardando transmissão'}</p>
-  </div>;
-}
 
-export default function CosmicMissions() {
-  const [mode, setMode] = useState('planets');
-  return <div className="cosmic-missions">
-    <div className="mission-modes" role="group" aria-label="Missão">
-      <button aria-pressed={mode === 'planets'} onClick={() => setMode('planets')}><Orbit size={20} /><span>Astro misterioso</span></button>
-      <button aria-pressed={mode === 'signal'} onClick={() => setMode('signal')}><Crosshair size={20} /><span>Sinal distante</span></button>
+  const next = () => {
+    const nextRound = round + 1;
+    setRound(nextRound);
+    setAnswer(null);
+    if (nextRound < deck.length) {
+      setOptions(shuffle([deck[nextRound], ...shuffle(deck.filter(p => p.id !== deck[nextRound].id)).slice(0, 3)]));
+    }
+  };
+
+  const reset = () => {
+    const nextDeck = shuffle(PLANETS_DATA);
+    setDeck(nextDeck);
+    setRound(0);
+    setScore(0);
+    setStreak(0);
+    setAnswer(null);
+    setOptions(shuffle([nextDeck[0], ...shuffle(nextDeck.slice(1)).slice(0, 3)]));
+  };
+
+  return (
+    <div className="w-full rounded-3xl bg-midnight-900/80 border border-white/10 backdrop-blur-2xl p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.85)] relative overflow-hidden flex flex-col items-center">
+      {/* Glow de fundo */}
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full blur-3xl pointer-events-none opacity-20"
+        style={{ background: planet?.color || '#e5c483' }}
+      />
+
+      {/* Barra de Status da Missão */}
+      <div className="w-full flex items-center justify-between border-b border-white/10 pb-4 mb-6 text-xs font-mono">
+        <span className="text-gray-400">
+          {done ? '✦ Expedição Concluída' : `Astro ${round + 1} de ${deck.length}`}
+        </span>
+        <span className="flex items-center gap-1.5 text-celestial-gold font-semibold">
+          <Trophy size={15} />
+          <span>{score} pontos</span>
+          {streak > 1 && (
+            <span className="ml-2 px-2 py-0.5 rounded-full bg-celestial-gold/20 text-celestial-gold text-[10px]">
+              {streak}x Combo
+            </span>
+          )}
+        </span>
+      </div>
+
+      {done ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center text-center py-8 gap-4"
+        >
+          <div className="w-16 h-16 rounded-full bg-celestial-gold/10 border border-celestial-gold/30 flex items-center justify-center text-celestial-gold mb-2 shadow-[0_0_30px_rgba(229,196,131,0.25)]">
+            <Orbit size={32} />
+          </div>
+          <h3 className="font-serif text-3xl text-white">
+            O Sistema Solar é Seu, Bela!
+          </h3>
+          <p className="text-sm text-gray-300 font-light max-w-md leading-relaxed">
+            Você completou o reconhecimento de todos os 8 planetas da sua galáxia com <strong className="text-celestial-gold font-mono">{score} pontos</strong> de conhecimento estelar.
+          </p>
+          <button
+            onClick={reset}
+            className="mt-4 px-6 py-3 rounded-full bg-celestial-gold text-midnight-950 font-mono text-xs uppercase tracking-wider font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)] hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2"
+          >
+            <RotateCcw size={16} />
+            <span>Jogar Novamente</span>
+          </button>
+        </motion.div>
+      ) : (
+        <div className="w-full max-w-xl flex flex-col items-center">
+          {/* Card do Astro Desconhecido */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 text-center sm:text-left">
+            <div className="relative w-36 h-36 sm:w-44 sm:h-44 shrink-0 rounded-full p-2 flex items-center justify-center">
+              <div 
+                className="absolute inset-0 rounded-full blur-xl opacity-30 transition-all duration-500"
+                style={{ background: answer ? planet.color : '#e5c483' }}
+              />
+              <img
+                src={planet.texture3D || `/planetas/orbs/${planet.id}.png`}
+                alt={answer ? planet.name : 'Astro misterioso'}
+                className="w-32 h-32 sm:w-40 sm:h-40 object-contain rounded-full relative z-10 select-none pointer-events-none drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]"
+              />
+            </div>
+
+            <div>
+              <span className="text-[10px] font-mono text-celestial-gold uppercase tracking-widest flex items-center gap-1 justify-center sm:justify-start">
+                <Sparkles size={12} />
+                <span>Desafio de Reconhecimento</span>
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl text-white mt-1">
+                {answer ? planet.name : 'Que astro é este?'}
+              </h3>
+              <p className="text-xs text-gray-300 font-light mt-1.5 leading-relaxed max-w-sm">
+                {answer ? (
+                  planet.facts?.[0] || planet.subtitle
+                ) : (
+                  'Observe a atmosfera, as cores e as características visuais captadas pelo telescópio.'
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Opções de Resposta em Grid 2x2 */}
+          <div className="grid grid-cols-2 gap-3 w-full mb-6">
+            {options.map(option => {
+              const isSelected = answer === option.id;
+              const isCorrect = option.id === planet.id;
+
+              let btnStyle = "bg-white/[0.03] text-gray-300 border-white/10 hover:bg-white/[0.08] hover:text-white";
+              if (answer !== null) {
+                if (isCorrect) {
+                  btnStyle = "bg-emerald-500/20 border-emerald-400/60 text-emerald-300 font-semibold shadow-[0_0_15px_rgba(52,211,153,0.2)]";
+                } else if (isSelected) {
+                  btnStyle = "bg-rose-500/20 border-rose-400/60 text-rose-300 font-semibold";
+                } else {
+                  btnStyle = "bg-white/[0.01] text-gray-500 border-white/5 opacity-50";
+                }
+              }
+
+              return (
+                <button
+                  key={option.id}
+                  disabled={answer !== null}
+                  onClick={() => choose(option.id)}
+                  className={`p-3.5 sm:p-4 rounded-2xl border text-xs sm:text-sm font-mono transition-all flex items-center justify-between cursor-pointer disabled:cursor-default ${btnStyle}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="w-2.5 h-2.5 rounded-full shrink-0" 
+                      style={{ backgroundColor: option.color }} 
+                    />
+                    <span>{option.name}</span>
+                  </div>
+                  {answer !== null && isCorrect && <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
+                  {answer !== null && isSelected && !isCorrect && <XCircle size={16} className="text-rose-400 shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback & Botão Próximo */}
+          <AnimatePresence>
+            {answer && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="w-full flex items-center justify-between pt-2"
+              >
+                <span className="text-xs font-mono text-gray-300">
+                  {answer === planet.id ? (
+                    <span className="text-emerald-300 font-semibold">✦ Coordenadas exatas confirmadas!</span>
+                  ) : (
+                    <span>O astro correto era <strong>{planet.name}</strong>.</span>
+                  )}
+                </span>
+                <button
+                  onClick={next}
+                  className="px-5 py-2 rounded-full bg-celestial-gold text-midnight-950 font-mono text-xs uppercase font-semibold tracking-wider hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md"
+                >
+                  {round === deck.length - 1 ? 'Ver Resultado' : 'Próximo Astro →'}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
-    <motion.div key={mode} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{mode === 'planets' ? <PlanetMission /> : <SignalMission />}</motion.div>
-  </div>;
+  );
 }

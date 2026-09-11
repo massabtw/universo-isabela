@@ -55,7 +55,7 @@ dd { font-size: 15px; overflow-wrap: anywhere; }
 .solar-section { position: relative; z-index: 10; padding: 100px 32px; }
 .section-heading { max-width: 1100px; margin: auto auto 32px; text-align: center; }
 .solar-content { width: 100%; max-width: 1160px; margin: auto; }
-.orbital-stage { height: 610px; width: 100%; position: relative; overflow: hidden; touch-action: none; isolation: isolate; }
+.orbital-stage { height: 610px; width: 100%; position: relative; overflow: hidden; touch-action: pan-y; isolation: isolate; }
 .orbital-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; }
 .orbital-stage canvas:active { cursor: grabbing; }
 .orbital-label { position: absolute; top: 0; left: 0; min-width: 48px; min-height: 44px; padding: 2px 6px 20px; font-size: 12px; text-shadow: 0 1px 4px black, 0 0 6px black; color: #d9e0e4; line-height: 20px; }
@@ -81,7 +81,7 @@ input[type="range"] { accent-color: #a7d7df; min-height: 44px; min-width: 0; }
 .planet-model { min-width: 0; display: flex; align-items: center; flex-direction: column; gap: 24px; }
 .planet-model-stage { width: 100%; aspect-ratio: 1; max-width: 510px; }
 .globe-viewer { width: 100%; height: 100%; display: flex; flex-direction: column; }
-.globe-canvas { position: relative; flex: 1; min-height: 0; touch-action: none; }
+.globe-canvas { position: relative; flex: 1; min-height: 0; touch-action: pan-y; }
 .globe-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .globe-controls { display: flex; gap: 8px; justify-content: center; padding-top: 12px; }
 .globe-loading { position: absolute; inset: 0; display: grid; place-items: center; z-index: 1; font-size: 13px; background: #020304cc; }
@@ -155,14 +155,15 @@ input[type="range"] { accent-color: #a7d7df; min-height: 44px; min-width: 0; }
   .galaxy-passage { height: 65svh; }
   .moon-observatory { padding: 88px 24px 80px; }
   .moon-heading h2, .section-heading h2 { font-size: 30px; }
-  .moon-observation { display: flex; flex-direction: column; gap: 24px; margin-top: 32px; }
-  .moon-portrait { order: -1; align-self: flex-end; width: 100%; align-items: flex-end; }
-  .moon-portrait figure { align-items: flex-end; }
-  .observatory-moon { width: min(80%, 290px); }
-  .moon-portrait figcaption { width: min(80%, 290px); }
-  .moon-facts { padding-top: 0; width: 100%; }
+  .moon-observation { display: flex; flex-direction: column; gap: 32px; margin-top: 32px; align-items: center; }
+  .moon-portrait { order: -1; align-self: center; width: 100%; align-items: center; text-align: center; }
+  .moon-portrait figure { align-items: center; justify-content: center; width: 100%; }
+  .observatory-moon { width: min(80%, 280px); margin: 0 auto; display: block; }
+  .moon-portrait figcaption { width: 100%; max-width: 280px; margin: 0 auto; text-align: center; align-items: center; }
+  .moon-facts { padding-top: 0; width: 100%; text-align: center; }
   .moon-facts h3 { font-size: 25px; }
-  .moon-portrait .segmented { width: 100%; }
+  .moon-metrics { justify-content: center; text-align: left; }
+  .moon-portrait .segmented { width: 100%; max-width: 340px; margin: 0 auto; }
   .moon-portrait .segmented button { flex: 1; padding: 10px 8px; font-size: 12px; }
   .solar-section { padding: 80px 16px; }
   .orbital-stage { height: 460px; }

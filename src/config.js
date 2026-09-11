@@ -142,13 +142,7 @@ export const SMALL_THINGS = [
 // Mensagem interativa revelada no envelope
 export const LETTER = {
   greeting: "Querida Bebela,",
-  body: `Se eu pudesse resumir você em um lugar, seria sob a luz da sua amada Lua — onde as coisas têm profundidade, brilho e uma beleza que não precisa forçar para encantar.
-
-Dos mistérios de cada caso criminal que você adora desvendar, à sagacidade do Patrick Jane; da energia pura cantando The Weeknd no show da sua vida, à garra admirável com que você se dedica ao Comércio Exterior: você é uma pessoa de universos múltiplos e fascinantes.
-
-Completar 19 anos é só mais um marco na história grandiosa que você está construindo. Continue sendo essa força gentil, essa mente curiosa e esse coração gigante.
-
-Você merece todas as estrelas do céu, Bela.`,
+  body: "", // Deixado vazio no momento para você escrever suas palavras pessoais
   signature: "Com todo o meu amor e admiração ♡",
 };
 

@@ -26,6 +26,7 @@ export default function PlanetViewer3D({ textureUrl, planetName, atmosphereColor
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.enablePan = false;
+    controls.enableZoom = false; // Permite scroll vertical livre da página
     controls.minDistance = home * 0.65;
     controls.maxDistance = home * 2;
     controls.autoRotateSpeed = 0.55;

@@ -116,7 +116,7 @@ const PLANETARY_PHYSICS = [
 ];
 
 export default function CosmicAgeCalculator() {
-  const [activeTab, setActiveTab] = useState("missoes");
+  const [activeTab, setActiveTab] = useState("odisseia");
   const [selectedPlanetId, setSelectedPlanetId] = useState("marte");
   const [customAge, setCustomAge] = useState(TURNING_AGE);
   const [showCustomAge, setShowCustomAge] = useState(false);
@@ -212,54 +212,53 @@ export default function CosmicAgeCalculator() {
           </h2>
           
           <p className="text-xs sm:text-sm text-gray-300 font-light max-w-lg mx-auto leading-relaxed">
-            Uma expedição pelos 19 anos de luz que a Bela espalhou pela galáxia: velocidade real, passaporte interplanetário e física gravitacional.
+            Uma expedição pelos 19 anos de luz que a Bela espalhou pela galáxia: velocidade real pelo cosmos e física gravitacional.
           </p>
         </div>
 
-        {/* ─── Navegação por Abas Estilizadas ─── */}
-        <div className="cosmic-tabs segmented" role="group" aria-label="Atividades cósmicas">
-          <button aria-pressed={activeTab === 'missoes'} onClick={() => setActiveTab('missoes')}><Crosshair size={18} aria-hidden="true" />Missões</button>
+        {/* ─── Navegação por Abas Estilizadas e Minimalistas ─── */}
+        <div className="flex items-center justify-center gap-2.5 flex-wrap mb-8">
           <button
             onClick={() => setActiveTab("odisseia")}
-            aria-pressed={activeTab === 'odisseia'}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+            aria-pressed={activeTab === "odisseia"}
+            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
               activeTab === "odisseia"
-                ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
+                : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
             <span>🚀</span>
-            <span>Jornada Real</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("passaporte")}
-            aria-pressed={activeTab === 'passaporte'}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
-              activeTab === "passaporte"
-                ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
-            }`}
-          >
-            <span>🪐</span>
-            <span>Passaporte Galáctico</span>
+            <span>Jornada dos 19 Anos</span>
           </button>
 
           <button
             onClick={() => setActiveTab("salto")}
-            aria-pressed={activeTab === 'salto'}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+            aria-pressed={activeTab === "salto"}
+            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
               activeTab === "salto"
-                ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
+                : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
             <span>🦘</span>
-            <span>Simulador de Salto</span>
+            <span>Simulador de Gravidade</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("quiz")}
+            aria-pressed={activeTab === "quiz"}
+            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
+              activeTab === "quiz"
+                ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
+                : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
+            }`}
+          >
+            <span>🪐</span>
+            <span>Desafio dos Astros</span>
           </button>
         </div>
 
-        {activeTab === 'missoes' && <CosmicMissions />}
+        {activeTab === 'quiz' && <CosmicMissions />}
 
         {/* ─── Conteúdo da Aba 1: Jornada Real dos 19 Anos ─── */}
         {activeTab === "odisseia" && (
@@ -341,163 +340,6 @@ export default function CosmicAgeCalculator() {
                 <p className="text-xs text-gray-400 font-light mt-2">
                   Batimentos do coração sincronizados com o ritmo e as marés do universo.
                 </p>
-              </div>
-
-            </div>
-          </motion.div>
-        )}
-
-        {/* ─── Conteúdo da Aba 2: Passaporte Galáctico da Bela ─── */}
-        {activeTab === "passaporte" && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="w-full flex flex-col gap-6"
-          >
-            {/* Seletor Rápido de Astros */}
-            <div className="w-full flex items-center justify-center gap-2 flex-wrap">
-              {PLANETARY_PHYSICS.map((item) => {
-                const isSelected = item.id === selectedPlanetId;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedPlanetId(item.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all duration-200 flex items-center gap-1.5 border cursor-pointer ${
-                      isSelected
-                        ? "bg-white/10 text-white border-celestial-gold shadow-[0_0_20px_rgba(229,196,131,0.3)] scale-105 font-medium"
-                        : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.07]"
-                    }`}
-                  >
-                    <span style={{ color: item.color }}>{item.symbol}</span>
-                    <span>{item.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Estilo Passaporte Cósmico Luxuoso */}
-            <div className="w-full rounded-3xl bg-midnight-900/80 border border-white/10 backdrop-blur-2xl p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.85)] relative overflow-hidden">
-              
-              {/* Faixa colorida do astro */}
-              <div 
-                className="absolute top-0 left-0 right-0 h-1.5 transition-colors duration-500"
-                style={{ backgroundColor: planet.color }}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                
-                {/* Lado Esquerdo: Selo de Visto Espacial & Idade */}
-                <div className="md:col-span-5 flex flex-col items-center justify-center text-center p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] relative">
-                  
-                  {/* Carimbo de Visto Estelar */}
-                  <div className="absolute top-3 right-3 text-[10px] font-mono text-celestial-gold/60 uppercase tracking-widest border border-celestial-gold/30 px-2 py-0.5 rounded-md -rotate-6">
-                    VISTO AUTORIZADO
-                  </div>
-
-                  <span className="text-5xl my-2" style={{ color: planet.color }}>
-                    {planet.symbol}
-                  </span>
-                  
-                  <p className="text-[10px] uppercase font-mono tracking-widest text-gray-400">
-                    Idade da Bela em {planet.name}
-                  </p>
-
-                  <div 
-                    className="font-serif text-5xl sm:text-6xl font-light tracking-tight my-1 transition-colors duration-300"
-                    style={{ color: planet.color }}
-                  >
-                    {ageValue}
-                  </div>
-
-                  <p className="text-xs font-mono text-gray-300">
-                    {ageUnit}
-                  </p>
-
-                  <div className="mt-4 px-3 py-1.5 rounded-xl bg-celestial-gold/10 border border-celestial-gold/30 text-[11px] font-mono text-celestial-gold">
-                    {planet.badge}
-                  </div>
-                </div>
-
-                {/* Lado Direito: Persona, Curiosidade & Próximo Niver */}
-                <div className="md:col-span-7 flex flex-col justify-between gap-4">
-                  
-                  {/* Título da Persona */}
-                  <div>
-                    <span className="text-xs font-mono uppercase tracking-widest text-celestial-gold">
-                      ✦ Título Honorário:
-                    </span>
-                    <h4 className="font-serif text-2xl sm:text-3xl text-white mt-1">
-                      {planet.titlePersona}
-                    </h4>
-                  </div>
-
-                  {/* Relato poético & pessoal */}
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08]">
-                    <p className="text-xs sm:text-sm text-gray-200 leading-relaxed font-light">
-                      "{planet.comment}"
-                    </p>
-                  </div>
-
-                  {/* Próximo Aniversário Planetário */}
-                  <div className="p-3.5 rounded-xl bg-celestial-gold/[0.07] border border-celestial-gold/25 flex items-center gap-3">
-                    <span className="text-xl">🎂</span>
-                    <div>
-                      <p className="text-[10px] uppercase font-mono text-celestial-gold tracking-wider">
-                        Calendário Solar de {planet.name}
-                      </p>
-                      <p className="text-xs text-white font-medium mt-0.5">
-                        {nextBirthdayText}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Controle opcional de idade */}
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
-                    <button
-                      onClick={() => setShowCustomAge(!showCustomAge)}
-                      className="text-xs font-mono text-gray-400 hover:text-celestial-gold flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <span>⚙</span>
-                      <span>{showCustomAge ? "Ocultar Ajuste de Idade" : "Simular com outra idade (além de 19)"}</span>
-                    </button>
-
-                    {showCustomAge && (
-                      <span className="text-xs font-mono text-celestial-gold">
-                        {customAge} anos na Terra
-                      </span>
-                    )}
-                  </div>
-
-                  {showCustomAge && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="flex flex-col gap-2 pt-2"
-                    >
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-gray-400">Ajuste Livre:</span>
-                        <button
-                          onClick={() => setCustomAge(TURNING_AGE)}
-                          className="text-[10px] text-celestial-gold underline cursor-pointer"
-                        >
-                          Restaurar 19 Anos da Bela
-                        </button>
-                      </div>
-                      <input
-                        type="range"
-                        aria-label="Idade na Terra"
-                        min="1"
-                        max="100"
-                        value={customAge}
-                        onChange={(e) => setCustomAge(Number(e.target.value))}
-                        className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-celestial-gold"
-                      />
-                    </motion.div>
-                  )}
-
-                </div>
-
               </div>
 
             </div>
