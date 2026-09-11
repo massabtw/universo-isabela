@@ -1,58 +1,23 @@
 /**
  * ====================================================================
- * GalaxySection.jsx — Via Láctea Espiral Cinemática (Three.js 3D)
+ * GalaxySection.jsx — Via Láctea Cinemática com Scroll Natural
  * ====================================================================
  *
- * Uma galáxia espiral fotorrealista com 42.000 partículas estelares,
- * núcleo dourado volumétrico, braços espirais logarítmicos e rotação contínua.
+ * Reproduz fielmente a transição das imagens de referência:
+ * - Imagem 1: Sobe suavemente por baixo da HeroSection com a Via Láctea
+ *   e o texto "Toda estrela tem uma história. Esta viagem é a sua."
+ * - Imagem 2: Ao rolar para baixo, transiciona naturalmente para a seção
+ *   seguinte ("O Astro Favorito da Bebela") sem travamento estático!
  *
- * 3 Atos de Animação no Scroll:
- * 1. Ato 1 (Scroll 0.0 -> 0.45): A galáxia viaja do canto superior direito até o centro.
- * 2. Ato 2 (Scroll 0.45 -> 0.70): A galáxia se centraliza, amplia e revela o coração estelar.
- * 3. Ato 3 (Scroll 0.70 -> 1.00): SAÍDA HIPERESPACIAL (Fly-through / Warp)!
- *    As estrelas mergulham em direção à câmera e ultrapassam o observador
- *    com aceleração cósmica contínua, conectando suavemente com a próxima tela!
+ * Three.js WebGL com 42.000 partículas estelares, núcleo dourado radiante
+ * e rotação cósmica viva.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 export default function GalaxySection() {
-  const containerRef = useRef(null);
   const mountRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  // Sincronização 60-120 FPS do scroll com o loop do Three.js
-  const progressRef = useRef(0);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    let frame;
-    const updateScroll = () => {
-      const rect = container.getBoundingClientRect();
-      const distance = container.offsetHeight - window.innerHeight;
-      const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, distance)));
-      progressRef.current = p;
-      setScrollProgress(p);
-      frame = null;
-    };
-
-    const schedule = () => {
-      if (frame == null) frame = requestAnimationFrame(updateScroll);
-    };
-
-    updateScroll();
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-
-    return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-    };
-  }, []);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -63,8 +28,8 @@ export default function GalaxySection() {
 
     // 1. Cena, Câmera e Renderizador
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 100);
-    camera.position.set(0, 0, 6.2);
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+    camera.position.set(0, 0, 5.8);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -94,12 +59,14 @@ export default function GalaxySection() {
 
     // 3. Grupo da Galáxia Espiral
     const galaxyGroup = new THREE.Group();
+    // Posiciona o núcleo da galáxia ligeiramente acima do centro para harmonizar com o texto abaixo (igual à foto 1)
+    galaxyGroup.position.set(0, 0.6, 0);
+    galaxyGroup.rotation.x = 0.72; // Perspectiva inclinada de disco galáctico
     scene.add(galaxyGroup);
 
-    // Parâmetros da Espiral Galáctica
     const particleCount = 42000;
     const branches = 3;
-    const radius = 7.0;
+    const radius = 6.8;
     const spin = 0.95;
 
     const positions = new Float32Array(particleCount * 3);
@@ -146,7 +113,7 @@ export default function GalaxySection() {
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.054,
+      size: 0.052,
       sizeAttenuation: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -158,7 +125,7 @@ export default function GalaxySection() {
     const points = new THREE.Points(geometry, material);
     galaxyGroup.add(points);
 
-    // 4. Núcleo Galáctico Volumétrico (Supermassive Glow)
+    // 4. Núcleo Volumétrico da Galáxia (Glow Dourado como na Foto 1)
     const createCoreGlowTexture = () => {
       const canvas = document.createElement("canvas");
       canvas.width = 128;
@@ -182,7 +149,7 @@ export default function GalaxySection() {
       depthWrite: false,
     });
     const coreSprite = new THREE.Sprite(coreGlowMaterial);
-    coreSprite.scale.set(3.6, 3.6, 1);
+    coreSprite.scale.set(3.4, 3.4, 1);
     galaxyGroup.add(coreSprite);
 
     const outerHaloMaterial = new THREE.SpriteMaterial({
@@ -194,67 +161,17 @@ export default function GalaxySection() {
       depthWrite: false,
     });
     const outerHaloSprite = new THREE.Sprite(outerHaloMaterial);
-    outerHaloSprite.scale.set(7.2, 7.2, 1);
+    outerHaloSprite.scale.set(6.8, 6.8, 1);
     galaxyGroup.add(outerHaloSprite);
 
-    // 5. Loop de Animação Cinemático e Contínuo no Scroll
+    // 5. Loop de Animação 60-120 FPS
     let animationFrameId;
     const clock = new THREE.Clock();
 
     const animate = () => {
       const elapsedTime = clock.getElapsedTime();
-      const p = progressRef.current; // progresso do scroll de 0 a 1
-
-      // Rotação viva contínua da galáxia que acelera sutilmente no mergulho
-      const rotationSpeed = p > 0.7 ? 0.045 + (p - 0.7) * 0.12 : 0.045;
-      galaxyGroup.rotation.y = elapsedTime * rotationSpeed;
-
-      // ─── ANIMAÇÃO DINÂMICA EM 3 ATOS NO SCROLL (NADA ESTÁTICO!) ───
-      let targetX = 0;
-      let targetY = 0;
-      let targetZ = 0;
-      let targetScale = 1;
-      let targetTilt = 0.8;
-
-      if (p <= 0.45) {
-        // Ato 1: A Galáxia viaja do canto superior direito ao centro
-        const t = p / 0.45;
-        targetX = 2.8 * (1 - t);
-        targetY = 1.4 * (1 - t);
-        targetZ = -3.5 + t * 3.5;       // de -3.5 até 0.0
-        targetScale = 0.65 + t * 0.35;  // de 0.65 até 1.0
-        targetTilt = 0.82 - t * 0.25;
-      } else if (p <= 0.70) {
-        // Ato 2: Centralizada, expande e revela o coração dourado
-        const t = (p - 0.45) / 0.25;
-        targetX = 0;
-        targetY = 0;
-        targetZ = 0.0 + t * 2.2;        // de 0.0 até 2.2 (aproximação grandiosa)
-        targetScale = 1.0 + t * 0.35;   // de 1.0 até 1.35
-        targetTilt = 0.57 - t * 0.15;
-      } else {
-        // Ato 3: O MERGULHO HIPERESPACIAL / SAÍDA DE WARP (p de 0.70 a 1.0)
-        // As estrelas aceleram em direção à câmera e ultrapassam a tela!
-        const t = (p - 0.70) / 0.30;
-        targetX = 0;
-        targetY = 0;
-        targetZ = 2.2 + Math.pow(t, 1.4) * 14.0; // de 2.2 até +16.2 (fly-through cinematográfico!)
-        targetScale = 1.35 + t * 0.8;
-        targetTilt = 0.42;
-
-        // Desvanece suavemente o núcleo no fim do warp para transicionar à próxima tela
-        const fade = Math.max(0, 1 - t * 1.5);
-        coreSprite.material.opacity = fade;
-        outerHaloSprite.material.opacity = fade * 0.35;
-        material.opacity = Math.max(0.1, 1 - t * 0.8);
-      }
-
-      // Interpolação suave para máxima fluidez a 60 FPS
-      galaxyGroup.position.x += (targetX - galaxyGroup.position.x) * 0.12;
-      galaxyGroup.position.y += (targetY - galaxyGroup.position.y) * 0.12;
-      galaxyGroup.position.z += (targetZ - galaxyGroup.position.z) * 0.12;
-      galaxyGroup.scale.set(targetScale, targetScale, targetScale);
-      galaxyGroup.rotation.x = targetTilt;
+      // Rotação contínua e suave da galáxia
+      galaxyGroup.rotation.y = elapsedTime * 0.04;
 
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(animate);
@@ -262,7 +179,6 @@ export default function GalaxySection() {
 
     animate();
 
-    // Resize Handler
     const handleResize = () => {
       if (!mount) return;
       const newW = mount.clientWidth || window.innerWidth;
@@ -274,7 +190,6 @@ export default function GalaxySection() {
     };
     window.addEventListener("resize", handleResize);
 
-    // Limpeza completa de recursos GPU
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
@@ -290,63 +205,35 @@ export default function GalaxySection() {
     };
   }, []);
 
-  // Textos da Imagem 4:
-  // "Toda estrela tem uma história. Esta viagem é a sua."
-  // Desvanecem suavemente conforme a galáxia centraliza
-  const textOpacity = Math.max(0, 1 - scrollProgress * 2.8);
-  const textTranslateY = scrollProgress * -35;
-
   return (
     <section
-      ref={containerRef}
-      className="relative z-20 w-full"
-      style={{ height: "250svh" }}
+      className="relative z-20 w-full min-h-screen flex items-center justify-center overflow-hidden bg-[#03070E] select-none py-24"
       id="galaxy"
     >
-      <div className="sticky top-0 h-svh w-full overflow-hidden bg-[#03070E]">
+      {/* ── CANVAS WEBGL THREE.JS COM A VIA LÁCTEA ── */}
+      <div ref={mountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
-        {/* ── CANVAS WEBGL THREE.JS COM A VIA LÁCTEA ── */}
-        <div ref={mountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+      {/* ── CONTEÚDO EDITORIAL CENTRAL (PIQUE NA FOTO 1) ── */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 max-w-3xl mt-24">
+        {/* Título e Subtítulo idênticos à referência */}
+        <h2 className="font-serif text-4xl sm:text-6xl md:text-7xl text-white/95 leading-tight tracking-tight mb-4 drop-shadow-[0_0_25px_rgba(0,0,0,0.9)]">
+          Toda estrela tem uma história.
+          <br />
+          <span className="text-white/85">Esta viagem é a sua.</span>
+        </h2>
 
-        {/* ── CONTEÚDO EDITORIAL CENTRAL (IMAGEM 4) ── */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center z-10 px-6 text-center pointer-events-none select-none"
-          style={{
-            opacity: textOpacity,
-            transform: `translateY(${textTranslateY}px)`,
-            willChange: "opacity, transform",
+        {/* Link com chevron para a próxima seção */}
+        <a
+          href="#lua"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById("lua")?.scrollIntoView({ behavior: "smooth" });
           }}
+          className="text-[12px] sm:text-xs font-mono text-[#E5C483]/90 hover:text-[#E5C483] tracking-[0.25em] uppercase flex items-center gap-2 transition-colors cursor-pointer mt-6 py-2 px-5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-[#E5C483]/40 active:scale-95"
         >
-          <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl text-white/95 leading-tight tracking-tight mb-4 max-w-2xl drop-shadow-[0_0_20px_rgba(0,0,0,0.8)]">
-            Toda estrela tem uma história.
-            <br />
-            <span className="text-white/85">Esta viagem é a sua.</span>
-          </h2>
-
-          <a
-            href="#lua"
-            onClick={(e) => {
-              e.preventDefault();
-              document.getElementById("lua")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="pointer-events-auto text-[12px] sm:text-xs font-mono text-[#E5C483]/90 hover:text-[#E5C483] tracking-[0.25em] uppercase flex items-center gap-2 transition-colors cursor-pointer mt-4 py-2 px-4 rounded-full bg-white/[0.02] border border-white/10 hover:border-[#E5C483]/40"
-          >
-            <span>Continuar a viagem</span>
-            <span className="text-sm">↓</span>
-          </a>
-        </div>
-
-        {/* Indicador de scroll dinâmico que reage ao progresso */}
-        <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10 pointer-events-none"
-          style={{ opacity: Math.max(0, 1 - scrollProgress * 3.5) }}
-        >
-          <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">
-            Role para explorar
-          </span>
-          <span className="text-celestial-gold/40 animate-bounce text-sm">↓</span>
-        </div>
-
+          <span>Continue a viagem</span>
+          <span className="text-sm">↓</span>
+        </a>
       </div>
     </section>
   );
