@@ -148,7 +148,7 @@ export const LETTER = {
 
 // ─── Música de Fundo ──────────────────────────
 export const MUSIC = {
-  src: "/musica.mp3", // Coloque The Hills.mp3 renomeado para musica.mp3 em public/
-  title: "The Hills",
-  artist: "The Weeknd",
+  src: "/musica.mp3", // Coloque o tema de Interstellar renomeado para musica.mp3 em public/
+  title: "Cornfield Chase (Interstellar)",
+  artist: "Hans Zimmer",
 };
