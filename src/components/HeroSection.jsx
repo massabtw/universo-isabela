@@ -36,8 +36,9 @@ export default function HeroSection() {
 
       // Leve zoom na Lua conforme desce o scroll
       if (moonRef.current) {
-        const zoom = 1 + progress * 0.18;
+        const zoom = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1 + progress * 1.8;
         moonRef.current.style.transform = `scale(${zoom})`;
+        moonRef.current.style.opacity = Math.max(0, 1 - progress * 2.3);
       }
 
       frame = null;
@@ -68,15 +69,15 @@ export default function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative z-10 w-full min-h-screen flex items-center overflow-hidden bg-[#03070E] select-none"
+      className="hero-story relative z-10 w-full select-none"
       id="inicio"
     >
       {/* ── CONTEÚDO PRINCIPAL: ESQUERDA (TEXTOS) & DIREITA (LUA PIQUE NA FOTO) ── */}
-      <div className="relative z-20 w-full min-h-screen flex flex-col md:flex-row items-center justify-between px-8 sm:px-14 lg:px-20 pt-20 pb-16 overflow-hidden">
+      <div className="hero-scene sticky top-0 z-20 w-full h-svh flex items-center px-8 sm:px-14 lg:px-20 overflow-hidden">
 
         {/* ── COLUNA DE TEXTO ESQUERDA ── */}
         <div
-          className="flex flex-col justify-center max-w-xl w-full z-20"
+          className="hero-copy flex flex-col justify-center max-w-xl w-full z-20"
           style={{
             opacity: textOpacity,
             transform: `translateY(${textTranslateY}px)`,
@@ -139,7 +140,7 @@ export default function HeroSection() {
         {/* ── LUA FOTORREALISTA COLOSSAL: SAI DO CENTRO E ENCOSTA NA BORDA DIREITA ── */}
         <motion.div
           initial={{
-            x: "-32vw", // Começa no centro horizontal da tela
+            x: "calc(-50vw + 36%)",
             opacity: 0,
           }}
           animate={{
@@ -151,7 +152,7 @@ export default function HeroSection() {
             delay: 0.15,
             ease: [0.16, 1, 0.3, 1],
           }}
-          className="absolute right-[-14vw] lg:right-[-12vw] top-1/2 -translate-y-1/2 w-[clamp(520px,64vw,980px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
+          className="side-moon pointer-events-none select-none z-10"
         >
           {/* Elemento de Zoom suave no Scroll */}
           <div

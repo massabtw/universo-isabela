@@ -8,7 +8,7 @@
  * - Celular: Top bar compacta com Sidebar Drawer deslizante super fluida
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
 import { PERSON_NAME, TURNING_AGE } from "../config";
 
@@ -23,6 +23,31 @@ const NAV_ITEMS = [
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const drawerRef = useRef(null);
+  const menuButtonRef = useRef(null);
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const drawer = drawerRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const background = [document.querySelector('main'), document.querySelector('.music-player')].filter(Boolean);
+    background.forEach(element => element.inert = true);
+    drawer?.querySelector('button')?.focus({ preventScroll: true });
+    const trapFocus = event => {
+      if (event.key !== 'Tab') return;
+      const focusable = [...drawer.querySelectorAll('a[href], button')];
+      const first = focusable[0], last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    drawer?.addEventListener('keydown', trapFocus);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      background.forEach(element => element.inert = false);
+      drawer?.removeEventListener('keydown', trapFocus);
+      menuButtonRef.current?.focus({ preventScroll: true });
+    };
+  }, [isMobileMenuOpen]);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -112,6 +137,9 @@ export default function Header() {
           {/* Botão Hamburger Móvel (visível em telas pequenas) */}
           <button
             type="button"
+            ref={menuButtonRef}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden w-10 h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 flex flex-col items-center justify-center gap-1.5 text-celestial-gold focus:outline-none cursor-pointer active:scale-95 transition-all"
             aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu de navegação"}
@@ -135,7 +163,7 @@ export default function Header() {
       {/* ── SIDEBAR DRAWER PARA CELULAR ── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 md:hidden flex justify-end">
+          <div className="fixed inset-0 z-[70] md:hidden flex justify-end" data-lenis-prevent>
             {/* Backdrop Escuro com Blur */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -147,11 +175,16 @@ export default function Header() {
 
             {/* Painel da Sidebar Deslizante */}
             <motion.aside
+              ref={drawerRef}
+              id="mobile-navigation"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navegação cósmica"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 280 }}
-              className="relative w-[285px] sm:w-[320px] h-full bg-[#060a1c]/98 border-l border-white/15 shadow-[-20px_0_50px_rgba(0,0,0,0.9)] flex flex-col justify-between p-6 z-10 overflow-y-auto"
+              className="relative w-[285px] sm:w-[320px] h-full bg-midnight-900 border-l border-white/15 shadow-[-20px_0_50px_rgba(0,0,0,0.9)] flex flex-col justify-between p-6 z-10 overflow-y-auto"
             >
               {/* Topo da Sidebar */}
               <div>

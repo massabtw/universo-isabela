@@ -24,13 +24,13 @@ export default function GalaxySection() {
   const progressRef = useRef(0);
 
   useEffect(() => {
-    const container = containerRef.current;
+    const container = document.getElementById("cosmic-journey");
     if (!container) return;
 
     let frame;
     const updateScroll = () => {
       const rect = container.getBoundingClientRect();
-      const distance = container.offsetHeight - window.innerHeight;
+      const distance = document.getElementById("lua").offsetTop - window.innerHeight * 0.5;
       const p = Math.min(1, Math.max(0, -rect.top / Math.max(1, distance)));
       progressRef.current = p;
       setScrollProgress(p);
@@ -64,13 +64,12 @@ export default function GalaxySection() {
     const camera = new THREE.PerspectiveCamera(52, width / height, 0.1, 100);
     camera.position.set(0, 0, 6.0);
 
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+    } catch { return; }
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     mount.appendChild(renderer.domElement);
 
     // 2. Textura radial difusa das estrelas
@@ -94,7 +93,7 @@ export default function GalaxySection() {
     const galaxyGroup = new THREE.Group();
     scene.add(galaxyGroup);
 
-    const particleCount = 42000;
+    const particleCount = width < 768 ? 9000 : 22000;
     const branches = 3;
     const radius = 6.8;
     const spin = 0.95;
@@ -105,7 +104,7 @@ export default function GalaxySection() {
     const colorInside = new THREE.Color("#FFE082"); // Dourado âmbar brilhante
     const colorCore = new THREE.Color("#FFF8E7");   // Centro branco-quente radiante
     const colorMid = new THREE.Color("#BAE6FD");    // Azul celeste nos braços
-    const colorOutside = new THREE.Color("#818CF8");// Violeta/azul cósmico nas bordas
+    const colorOutside = new THREE.Color("#8AB8CB");
 
     for (let i = 0; i < particleCount; i++) {
       const i3 = i * 3;
@@ -197,13 +196,19 @@ export default function GalaxySection() {
     // 5. Loop de Animação com a Aproximação do Scroll
     let animationFrameId;
     const clock = new THREE.Clock();
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let visible = true;
+    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
+    observer.observe(mount);
 
     const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
+      if (!visible || document.hidden) return;
       const elapsedTime = clock.getElapsedTime();
       const p = progressRef.current; // scroll progress de 0 a 1
 
       // Rotação suave contínua no espaço
-      galaxyGroup.rotation.y = elapsedTime * 0.045;
+      galaxyGroup.rotation.y = reduced ? 0 : elapsedTime * 0.025;
 
       // ─── ANIMAÇÃO: DO TOPO DIREITO PARA O MEIO + APROXIMAÇÃO ───
       // progress 0.0: No topo direito (x: 2.8, y: 1.4, z: -3.5, scale: 0.65)
@@ -212,7 +217,7 @@ export default function GalaxySection() {
       const targetX = 2.8 * (1 - t);
       const targetY = 1.4 * (1 - t);
       const targetZ = -3.5 + t * 4.8;      // aproximação de -3.5 até +1.3 (zoom in grandioso)
-      const targetScale = 0.65 + t * 0.70; // escala de 0.65 até 1.35
+      const targetScale = 0.28 + t * 1.07;
       const targetTilt = 0.82 - t * 0.35;  // perspectiva de inclinação suave
 
       // Interpolação fluida a 60 FPS
@@ -223,7 +228,6 @@ export default function GalaxySection() {
       galaxyGroup.rotation.x = targetTilt;
 
       renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
@@ -235,12 +239,13 @@ export default function GalaxySection() {
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     };
     window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
       window.removeEventListener("resize", handleResize);
       if (mount && renderer.domElement) {
         mount.removeChild(renderer.domElement);
@@ -248,7 +253,9 @@ export default function GalaxySection() {
       geometry.dispose();
       material.dispose();
       starTexture.dispose();
+      coreGlowMaterial.map.dispose();
       coreGlowMaterial.dispose();
+      outerHaloMaterial.map.dispose();
       outerHaloMaterial.dispose();
       renderer.dispose();
     };
@@ -256,17 +263,15 @@ export default function GalaxySection() {
 
   // Textos da Imagem 4:
   // Ficam visíveis no início e desvanecem suavemente conforme a galáxia atinge o meio
-  const textOpacity = Math.max(0, 1 - scrollProgress * 2.4);
+  const textOpacity = Math.max(0, Math.min(1, (scrollProgress - 0.32) * 7, (0.85 - scrollProgress) * 7));
   const textTranslateY = scrollProgress * -35;
 
   return (
-    <section
+    <div
       ref={containerRef}
-      className="relative z-20 w-full"
-      style={{ height: "200svh" }}
-      id="galaxy"
+      className="absolute inset-0 pointer-events-none"
     >
-      <div className="sticky top-0 h-svh w-full overflow-hidden bg-[#03070E] flex items-center justify-center select-none">
+      <div className="sticky top-0 h-svh w-full overflow-hidden flex items-center justify-center select-none" style={{ opacity: Math.min(0.8, scrollProgress * 2.5 + 0.08) }}>
 
         {/* ── CANVAS WEBGL THREE.JS COM A VIA LÁCTEA ANIMADA ── */}
         <div ref={mountRef} className="absolute inset-0 w-full h-full pointer-events-none" />
@@ -292,7 +297,9 @@ export default function GalaxySection() {
               e.preventDefault();
               document.getElementById("lua")?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="pointer-events-auto text-[12px] sm:text-xs font-mono text-[#E5C483]/90 hover:text-[#E5C483] tracking-[0.25em] uppercase flex items-center gap-2 transition-colors cursor-pointer mt-6 py-2 px-5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-[#E5C483]/40 active:scale-95"
+            tabIndex={textOpacity > 0.5 ? 0 : -1}
+            style={{ pointerEvents: textOpacity > 0.5 ? 'auto' : 'none' }}
+            className="text-sm text-celestial-gold mt-6 p-3 underline underline-offset-4"
           >
             <span>Continue a viagem</span>
             <span className="text-sm">↓</span>
@@ -302,7 +309,7 @@ export default function GalaxySection() {
         {/* Indicador de scroll dinâmico */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 z-10 pointer-events-none"
-          style={{ opacity: Math.max(0, 1 - scrollProgress * 3.5) }}
+          style={{ opacity: 0 }}
         >
           <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-gray-500">
             Role para aproximar
@@ -311,6 +318,6 @@ export default function GalaxySection() {
         </div>
 
       </div>
-    </section>
+    </div>
   );
 }

@@ -26,7 +26,7 @@ const MusicPlayer = () => {
 
   return (
     <div 
-      className="fixed bottom-6 right-6 z-50 flex items-center justify-end"
+      className="music-player fixed bottom-6 right-6 z-50 flex items-center justify-end"
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >

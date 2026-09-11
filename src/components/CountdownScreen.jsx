@@ -211,7 +211,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#03070E] text-white select-none">
+    <div className="countdown-screen relative min-h-screen w-full overflow-hidden bg-black text-white select-none">
       {/* ── CANVAS DE ESTRELAS ── */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
@@ -327,7 +327,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: isExploding ? 0.6 : 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-[-14vw] lg:right-[-12vw] top-1/2 -translate-y-1/2 w-[clamp(520px,64vw,980px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
+          className="side-moon pointer-events-none select-none z-10"
         >
           {/* Halo cósmico suave circundando o limbo da Lua */}
           <div

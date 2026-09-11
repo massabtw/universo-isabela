@@ -1,259 +1,57 @@
-/**
- * ============================================
- * MoonPhase — Observatório da Lua (Dinâmico)
- * ============================================
- *
- * Calcula a fase da Lua de forma astronômica real
- * tanto para o nascimento da Isabela (14/09/2007)
- * quanto para o dia de HOJE, exibindo a data exata.
- */
-
-import React, { useState, useMemo, useEffect, useId } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-
-import { calculateLunarData } from "../utils/moon";
+import { useEffect, useId, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import { calculateLunarData } from '../utils/moon';
 
 export default function MoonPhase() {
-  const [activeMode, setActiveMode] = useState("today");
-
-  // Data de hoje calculada dinamicamente
-  const [todayDate, setTodayDate] = useState(() => new Date());
-  const maskId = useId();
+  const [mode, setMode] = useState('today');
+  const [today, setToday] = useState(() => new Date());
+  const mask = useId();
   useEffect(() => {
-    const refresh = () => setTodayDate(new Date());
+    const refresh = () => setToday(new Date());
     const timer = setInterval(refresh, 60000);
     document.addEventListener('visibilitychange', refresh);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener('visibilitychange', refresh);
-    };
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', refresh); };
   }, []);
-
-  // Formatação em português
-  const formattedToday = useMemo(() => {
-    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    const str = todayDate.toLocaleDateString('pt-BR', options);
-    // Capitaliza primeira letra
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }, [todayDate]);
-
-  // Cálculos dinâmicos para nascimento e hoje
-  const birthData = useMemo(() => calculateLunarData("2007-09-14T00:00:00Z"), []);
-  const todayData = useMemo(() => calculateLunarData(todayDate), [todayDate]);
-
-  const activeData = activeMode === "birth" ? {
-    ...birthData,
-    dateTitle: "14 de Setembro de 2007",
-    weekday: "Sexta-feira",
-    subHeader: "A noite exata em que você chegou ao mundo",
-    badge: "14.09.2007 • LUA DO NASCIMENTO",
-    quote: "Na noite em que você nasceu, a Lua se recolhia em um fino e delicado arco de prata. Quase sutil, como se soubesse que a verdadeira luz daquela noite acabava de nascer na Terra.",
-  } : {
-    ...todayData,
-    dateTitle: `Hoje, ${todayDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}`,
-    weekday: formattedToday.split(',')[0],
-    subHeader: "O céu que ilumina você neste exato momento",
-    badge: `OBSERVAÇÃO ATUAL • ${todayDate.toLocaleDateString('pt-BR')}`,
-    quote: "Não importa a fase em que a Lua esteja no céu esta noite: sob qualquer ângulo do cosmos, você continua sendo o espetáculo mais bonito e inspirador de todo o universo.",
-  };
-
+  const date = mode === 'birth' ? new Date('2007-09-14T00:00:00Z') : today;
+  const data = useMemo(() => calculateLunarData(date), [mode, today]);
+  const dateLabel = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', ...(mode === 'birth' ? { timeZone: 'UTC' } : {}) });
   return (
-    <section 
-      id="lua" 
-      className="relative z-10 min-h-screen py-28 px-6 flex flex-col items-center justify-center overflow-hidden bg-transparent"
-    >
-      {/* Luz ambiente da Lua reagindo dinamicamente à fase */}
-      <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] md:w-[700px] h-[500px] md:h-[700px] rounded-full pointer-events-none opacity-30 transition-all duration-1000"
-        style={{
-          background: `radial-gradient(circle, ${activeData.glowColor} 0%, transparent 70%)`,
-        }}
-      />
-
-      <div className="relative z-10 max-w-5xl w-full flex flex-col items-center">
-        
-        {/* Cabeçalho Editorial */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-10"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="w-8 h-[1px] bg-celestial-gold/40"></span>
-            <span className="text-[11px] uppercase tracking-[0.4em] text-celestial-gold font-mono font-medium">
-              Observatório Astronômico
-            </span>
-            <span className="w-8 h-[1px] bg-celestial-gold/40"></span>
+    <section id="lua" className="moon-observatory">
+      <motion.div className="moon-observatory-inner" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ amount: 0.2 }} transition={{ duration: 0.9 }}>
+        <header className="moon-heading">
+          <h2>O Astro Favorito da Bebela</h2>
+          <p>A mesma Lua. Dois momentos da sua história.</p>
+        </header>
+        <div className="moon-observation">
+          <div className="moon-facts">
+            <h3>{mode === 'birth' ? 'A noite em que você chegou' : 'O céu desta noite'}</h3>
+            <p className="moon-date">{dateLabel}</p>
+            <dl className="moon-metrics">
+              <div><dt>Fase lunar</dt><dd>{data.phaseName}</dd></div>
+              <div><dt>Iluminação</dt><dd>{data.illuminationPercent}%</dd></div>
+              <div><dt>Ciclo lunar</dt><dd>{data.ageDays} dias</dd></div>
+              <div><dt>Referência</dt><dd>Hemisfério sul</dd></div>
+            </dl>
+            <p className="moon-poem">{mode === 'birth'
+              ? 'Na noite em que você nasceu, a Lua desenhava um delicado arco de prata. Uma luz discreta no céu para receber a sua aqui na Terra.'
+              : 'Não importa a fase da Lua esta noite. Há uma beleza em mudar, em recomeçar e em continuar brilhando.'}</p>
           </div>
-          <h2 className="font-serif text-3xl md:text-5xl text-celestial-starlight tracking-tight mb-3">
-            O Astro Favorito da Bebela
-          </h2>
-          <p className="text-sm md:text-base text-gray-400 font-light max-w-lg mx-auto">
-            Acompanhe em tempo real a dança da Lua pelo cosmos e a memória de onde tudo começou.
-          </p>
-        </motion.div>
-
-        {/* Seletor Interativo: Nascimento vs Hoje (Otimizado para Mobile e Desktop) */}
-        <div className="w-full max-w-sm sm:max-w-none sm:w-auto flex flex-col sm:flex-row items-stretch sm:items-center p-1.5 rounded-2xl sm:rounded-full bg-midnight-900/80 border border-white/10 backdrop-blur-xl mb-12 sm:mb-14 shadow-2xl gap-1.5 sm:gap-0">
-          <button
-            onClick={() => setActiveMode("birth")}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl sm:rounded-full text-xs font-medium uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 ${
-              activeMode === "birth"
-                ? "bg-gradient-to-r from-[#162540] to-[#1E3255] text-celestial-gold shadow-lg shadow-black/50 border border-celestial-gold/40"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            <span>🌙</span> 14 de Setembro de 2007
-          </button>
-          
-          <button
-            onClick={() => setActiveMode("today")}
-            className={`px-4 sm:px-6 py-2.5 rounded-xl sm:rounded-full text-xs font-medium uppercase tracking-[0.15em] sm:tracking-[0.2em] transition-all duration-300 flex items-center justify-center gap-2 ${
-              activeMode === "today"
-                ? "bg-gradient-to-r from-[#162540] to-[#1E3255] text-celestial-glow shadow-lg shadow-black/50 border border-celestial-glow/40"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            <span>✨</span> A Lua Hoje ({todayDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })})
-          </button>
-        </div>
-
-        {/* Grid Principal: Esfera Lunar Realística + Painel de Dados */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
-          
-          {/* Lado Esquerdo: A Lua com Textura e Iluminação Real */}
-          <motion.div 
-            className="lg:col-span-6 flex flex-col items-center justify-center relative py-4 sm:py-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-          >
-            {/* Anéis orbitais decorativos */}
-            <div className="absolute w-60 h-60 sm:w-72 sm:h-72 md:w-96 md:h-96 rounded-full border border-white/[0.07] pointer-events-none animate-spin-slow" />
-            <div className="absolute w-72 h-72 sm:w-84 sm:h-84 md:w-[430px] md:h-[430px] rounded-full border border-dashed border-white/[0.04] pointer-events-none" />
-
-            {/* A Esfera Lunar com Astrofotografia Real Telescópica */}
-            <motion.div 
-              animate={{ y: [-6, 6, -6] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-              className="relative w-56 h-56 sm:w-72 sm:h-72 md:w-[336px] md:h-[336px] rounded-full shadow-[0_0_50px_rgba(0,0,0,0.9)] flex items-center justify-center select-none group"
-            >
-              
-              {/* Brilho da borda da Lua */}
-              <div 
-                className="absolute -inset-4 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-700 pointer-events-none"
-                style={{
-                  background: `radial-gradient(circle, ${activeData.glowColor} 0%, transparent 70%)`
-                }}
-              />
-
-              {/* Globo com a Foto Real da Lua */}
-              <div className="relative w-full h-full rounded-full overflow-hidden border border-white/20 shadow-[0_0_35px_rgba(0,0,0,0.95)] bg-black">
-                {activeMode === "birth" ? (
-                  /* ── Foto Real da Lua de 14/09/2007 ── */
-                  <motion.img
-                    key="moon-2007-real"
-                    src="/moon_2007.jpg"
-                    alt="A Lua em 14 de Setembro de 2007"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="w-full h-full object-cover select-none pointer-events-none"
-                  />
-                ) : (
-                  /* ── Foto Real da Lua com Sombreamento Dinâmico para Hoje ── */
-                  <svg viewBox="0 0 100 100" role="img" aria-label={`${activeData.phaseName}, ${activeData.illuminationPercent}% iluminada`} className="w-full h-full">
-                    <defs>
-                      <mask id={maskId}>
-                        <rect width="100" height="100" fill="black" />
-                        <path d={activeData.lightPath} fill="white" transform={activeData.waxing ? 'translate(100 0) scale(-1 1)' : undefined} />
-                      </mask>
-                    </defs>
-                    <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" opacity="0.08" />
-                    <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" mask={`url(#${maskId})`} />
-                  </svg>
-                )}
-              </div>
-
-              {/* Badge de Data comemorativa no pé da Lua */}
-              <div className="absolute -bottom-8 px-5 py-1.5 rounded-full bg-midnight-900/90 border border-white/10 text-[11px] font-mono text-celestial-gold tracking-widest backdrop-blur-md shadow-lg">
-                {activeData.badge}
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Lado Direito: Dados Detalhados com a Data Exata */}
-          <div className="lg:col-span-6">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeMode}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.4 }}
-                className="bg-midnight-900/70 backdrop-blur-2xl border border-white/[0.08] rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden"
-              >
-                {/* Linha de topo com gradiente */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-celestial-gold to-transparent opacity-60" />
-
-                {/* Sub-header */}
-                <span className="text-[11px] uppercase tracking-[0.3em] text-celestial-glow/80 font-mono">
-                  {activeData.subHeader}
-                </span>
-
-                {/* Data Principal em Destaque */}
-                <div className="mt-2 mb-6">
-                  <h3 className="font-serif text-2xl md:text-3xl text-celestial-starlight tracking-tight">
-                    {activeData.dateTitle}
-                  </h3>
-                  <p className="text-xs uppercase tracking-[0.25em] text-celestial-gold mt-1 font-mono">
-                    {activeData.weekday}
-                  </p>
-                </div>
-
-                {/* Métricas Celestiais em Grade */}
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="p-4 rounded-2xl bg-midnight-800/70 border border-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Fase Lunar</p>
-                    <p className="font-serif text-sm md:text-base text-celestial-gold font-medium">{activeData.phaseName}</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-midnight-800/70 border border-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Iluminação</p>
-                    <p className="font-serif text-sm md:text-base text-celestial-starlight font-medium">{activeData.illuminationPercent}% visível</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-midnight-800/70 border border-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Ciclo Lunar</p>
-                    <p className="font-serif text-sm md:text-base text-celestial-starlight font-medium">{activeData.ageDays} dias</p>
-                  </div>
-                  <div className="p-4 rounded-2xl bg-midnight-800/70 border border-white/5">
-                    <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-mono">Referência</p>
-                    <p className="font-serif text-sm md:text-base text-celestial-glow font-medium">Vista do hemisfério sul</p>
-                  </div>
-                </div>
-
-                {/* Poesia da Lua */}
-                <div className="border-l-2 border-celestial-gold/50 pl-5 py-1">
-                  <p className="font-serif italic text-base md:text-lg text-gray-300 leading-relaxed">
-                    "{activeData.quote}"
-                  </p>
-                </div>
-
-                {/* Rodapé técnico estilo observatório */}
-                <div className="mt-8 flex items-center justify-between text-[11px] text-gray-500 border-t border-white/5 pt-4 font-mono">
-                  <span>CELESTIAL ARCHIVE • BEBELA</span>
-                  <span>{activeMode === "birth" ? "ORIGIN: 2007" : "REALTIME TRACKER"}</span>
-                </div>
-              </motion.div>
-            </AnimatePresence>
+          <div className="moon-portrait">
+            <div className="segmented" role="group" aria-label="Data da Lua">
+              <button aria-pressed={mode === 'birth'} onClick={() => setMode('birth')}>14 de setembro de 2007</button>
+              <button aria-pressed={mode === 'today'} onClick={() => setMode('today')}>Lua de hoje</button>
+            </div>
+            <motion.figure key={mode} initial={{ opacity: 0.3 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+              <svg viewBox="0 0 100 100" role="img" aria-label={data.phaseName + ', ' + data.illuminationPercent + '% iluminada'} className="observatory-moon">
+                <defs><mask id={mask}><rect width="100" height="100" fill="black" /><path d={data.lightPath} fill="white" transform={data.waxing ? 'translate(100 0) scale(-1 1)' : undefined} /></mask></defs>
+                <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" opacity="0.13" />
+                <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" mask={'url(#' + mask + ')'} />
+              </svg>
+              <figcaption><strong>{data.phaseName}</strong><span>{dateLabel}</span></figcaption>
+            </motion.figure>
           </div>
-
         </div>
-
-      </div>
+      </motion.div>
     </section>
   );
 }

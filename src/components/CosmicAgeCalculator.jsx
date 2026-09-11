@@ -15,6 +15,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TURNING_AGE, PERSON_NAME } from "../config";
+import CosmicMissions from './CosmicMissions';
+import { Crosshair } from 'lucide-react';
 
 const BIRTH_TIMESTAMP = new Date("2007-09-14T00:00:00-03:00").getTime();
 const ORBIT_SPEED_KMS = 29.7827; // km/s da Terra ao redor do Sol
@@ -114,7 +116,7 @@ const PLANETARY_PHYSICS = [
 ];
 
 export default function CosmicAgeCalculator() {
-  const [activeTab, setActiveTab] = useState("odisseia"); // "odisseia" | "passaporte" | "salto"
+  const [activeTab, setActiveTab] = useState("missoes");
   const [selectedPlanetId, setSelectedPlanetId] = useState("marte");
   const [customAge, setCustomAge] = useState(TURNING_AGE);
   const [showCustomAge, setShowCustomAge] = useState(false);
@@ -129,7 +131,7 @@ export default function CosmicAgeCalculator() {
     const timer = setInterval(() => {
       const elapsedSec = (Date.now() - BIRTH_TIMESTAMP) / 1000;
       setCurrentKm(Math.floor(elapsedSec * ORBIT_SPEED_KMS));
-    }, 100);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -215,9 +217,11 @@ export default function CosmicAgeCalculator() {
         </div>
 
         {/* ─── Navegação por Abas Estilizadas ─── */}
-        <div className="flex items-center justify-center gap-2 p-1.5 rounded-2xl bg-midnight-950/80 border border-white/10 backdrop-blur-xl mb-8 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+        <div className="cosmic-tabs segmented" role="group" aria-label="Atividades cósmicas">
+          <button aria-pressed={activeTab === 'missoes'} onClick={() => setActiveTab('missoes')}><Crosshair size={18} aria-hidden="true" />Missões</button>
           <button
             onClick={() => setActiveTab("odisseia")}
+            aria-pressed={activeTab === 'odisseia'}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
               activeTab === "odisseia"
                 ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
@@ -230,6 +234,7 @@ export default function CosmicAgeCalculator() {
 
           <button
             onClick={() => setActiveTab("passaporte")}
+            aria-pressed={activeTab === 'passaporte'}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
               activeTab === "passaporte"
                 ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
@@ -242,6 +247,7 @@ export default function CosmicAgeCalculator() {
 
           <button
             onClick={() => setActiveTab("salto")}
+            aria-pressed={activeTab === 'salto'}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer ${
               activeTab === "salto"
                 ? "bg-celestial-gold text-midnight-950 font-semibold shadow-[0_0_20px_rgba(229,196,131,0.4)]"
@@ -252,6 +258,8 @@ export default function CosmicAgeCalculator() {
             <span>Simulador de Salto</span>
           </button>
         </div>
+
+        {activeTab === 'missoes' && <CosmicMissions />}
 
         {/* ─── Conteúdo da Aba 1: Jornada Real dos 19 Anos ─── */}
         {activeTab === "odisseia" && (
@@ -478,6 +486,7 @@ export default function CosmicAgeCalculator() {
                       </div>
                       <input
                         type="range"
+                        aria-label="Idade na Terra"
                         min="1"
                         max="100"
                         value={customAge}
