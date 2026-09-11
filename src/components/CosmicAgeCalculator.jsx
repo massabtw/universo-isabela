@@ -217,11 +217,11 @@ export default function CosmicAgeCalculator() {
         </div>
 
         {/* ─── Navegação por Abas Estilizadas e Minimalistas ─── */}
-        <div className="flex items-center justify-center gap-2.5 flex-wrap mb-8">
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap mb-8">
           <button
             onClick={() => setActiveTab("odisseia")}
             aria-pressed={activeTab === "odisseia"}
-            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
+            className={`px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
               activeTab === "odisseia"
                 ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
                 : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
@@ -234,7 +234,7 @@ export default function CosmicAgeCalculator() {
           <button
             onClick={() => setActiveTab("salto")}
             aria-pressed={activeTab === "salto"}
-            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
+            className={`px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
               activeTab === "salto"
                 ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
                 : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
@@ -247,14 +247,14 @@ export default function CosmicAgeCalculator() {
           <button
             onClick={() => setActiveTab("quiz")}
             aria-pressed={activeTab === "quiz"}
-            className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
+            className={`px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-mono transition-all duration-300 flex items-center gap-2 cursor-pointer border ${
               activeTab === "quiz"
                 ? "bg-celestial-gold text-midnight-950 border-celestial-gold font-semibold shadow-[0_0_20px_rgba(229,196,131,0.35)] scale-105"
                 : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
-            <span>🪐</span>
-            <span>Desafio dos Astros</span>
+            <span>✨</span>
+            <span>Quiz Cósmico</span>
           </button>
         </div>
 
@@ -269,10 +269,10 @@ export default function CosmicAgeCalculator() {
             className="w-full flex flex-col gap-6"
           >
             {/* O Grande Odômetro Estelar ao Vivo */}
-            <div className="w-full rounded-3xl bg-midnight-900/80 border border-celestial-gold/25 backdrop-blur-2xl p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden text-center">
+            <div className="w-full rounded-3xl bg-midnight-900/80 border border-celestial-gold/25 backdrop-blur-2xl p-5 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative overflow-hidden text-center">
               <div className="absolute -right-16 -top-16 w-48 h-48 bg-celestial-gold/10 rounded-full blur-3xl pointer-events-none" />
               
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-celestial-gold/10 border border-celestial-gold/30 text-[11px] font-mono text-celestial-gold mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-celestial-gold/10 border border-celestial-gold/30 text-[10px] sm:text-[11px] font-mono text-celestial-gold mb-4 max-w-full">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 Odômetro Cósmico em Tempo Real • 29,78 km/s
               </div>
@@ -281,9 +281,9 @@ export default function CosmicAgeCalculator() {
                 Distância percorrida pelo espaço desde 14/09/2007:
               </h3>
 
-              {/* Número que pula ao vivo com o tempo */}
-              <div className="font-mono text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-celestial-starlight to-celestial-gold my-2 select-text">
-                {currentKm.toLocaleString("pt-BR")} <span className="text-lg sm:text-2xl text-celestial-gold/80 font-sans font-normal">km</span>
+              {/* Número que pula ao vivo com o tempo, sem quebrar layout em telas pequenas */}
+              <div className="font-mono text-xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-celestial-starlight to-celestial-gold my-2 select-text break-all">
+                {currentKm.toLocaleString("pt-BR")} <span className="text-sm sm:text-2xl text-celestial-gold/80 font-sans font-normal">km</span>
               </div>
 
               <p className="text-xs sm:text-sm text-gray-300 font-light max-w-xl mx-auto mt-3 leading-relaxed">

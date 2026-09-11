@@ -101,7 +101,7 @@ export default function ClosingMessage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: reduced ? 0 : -20 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-2xl rounded-3xl bg-gradient-to-b from-[#111822] via-[#0d131b] to-[#090e15] border-2 border-celestial-gold/35 p-8 sm:p-14 shadow-[0_30px_80px_rgba(0,0,0,0.95),0_0_50px_rgba(229,196,131,0.15)] relative overflow-hidden flex flex-col z-10 select-text"
+            className="w-full max-w-2xl rounded-3xl bg-gradient-to-b from-[#111822] via-[#0d131b] to-[#090e15] border-2 border-celestial-gold/35 p-5 sm:p-10 md:p-14 shadow-[0_30px_80px_rgba(0,0,0,0.95),0_0_50px_rgba(229,196,131,0.15)] relative overflow-hidden flex flex-col z-10 select-text"
           >
             {/* Moldura Interna com Filigrana Dourada */}
             <div className="absolute inset-3 sm:inset-4 rounded-2xl border border-celestial-gold/20 pointer-events-none" />

@@ -9,11 +9,13 @@ import CosmicAgeCalculator from './components/CosmicAgeCalculator';
 import MoonGallery from './components/MoonGallery';
 import ClosingMessage from './components/ClosingMessage';
 import FloatingParticles from './components/FloatingParticles';
+import DecorativeGalaxies from './components/DecorativeGalaxies';
 import MusicPlayer from './components/MusicPlayer';
 import { Undo2 } from 'lucide-react';
 
 export default function Universe({ onReturn }) {
   return <>
+    <DecorativeGalaxies />
     <FloatingParticles />
     <MusicPlayer />
     <SmoothScroll />
