@@ -141,9 +141,21 @@ export const SMALL_THINGS = [
 // ─── Carta Pessoal ────────────────────────────
 // Mensagem interativa revelada no envelope
 export const LETTER = {
-  greeting: "Querida Bebela,",
-  body: "", // Deixado vazio no momento para você escrever suas palavras pessoais
-  signature: "Com todo o meu amor e admiração ♡",
+  greeting: "",
+  body: `Feliz aniversario, amor da minha vida!
+
+To muito feliz em poder participar de mais um aniversário ao seu lado, nunca fiquei tão ansioso para um aniversario de uma outra pessoa, e hoje em dia, eu espero mais o seu, do que o meu!
+
+Dediquei o meu tempo fazendo isso daqui, espero que você goste, nunca fui caprichoso fazendo presentes feitos a mão de papel, então nesse tentei dar uma caprichada a mais kkkkkkkkkk.
+
+Espero que você curta muito o seu dia, vamos fazer de tudo para ser um dia muito legal, to muito feliz de conseguir passar essa noite com você, dessa vez dormindo juntos kkkkkkkk.
+
+Você é a melhor namorada que eu poderia ter, eu to extremamente orgulhoso das suas conquistas, e do seu crescimento nesses ultimos 12 meses, eu sou o seu maior fã.
+
+Continue sempre sendo essa pessoal incrivel que voce é, feliz 19 anos de vida, eu te amo infinitamente.
+
+Nunca se esqueça de que você é o meu significado favorito do que é amor!`,
+  signature: "Assinado: Gabriel Massa.",
 };
 
 // ─── Música de Fundo ──────────────────────────
