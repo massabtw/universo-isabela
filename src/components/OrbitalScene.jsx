@@ -6,6 +6,134 @@ import { PLANETS_DATA, SUN_DATA } from '../data/planetsData';
 
 const BODIES = [SUN_DATA, ...PLANETS_DATA];
 
+/**
+ * Gera textura circular suave para partículas estelares
+ */
+function createStarTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 64;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  grad.addColorStop(0.18, 'rgba(255, 245, 220, 0.9)');
+  grad.addColorStop(0.45, 'rgba(180, 215, 255, 0.35)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 64, 64);
+  return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Gera textura de brilho volumétrico para o núcleo galáctico
+ */
+function createGalaxyGlowTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  grad.addColorStop(0.15, 'rgba(255, 235, 190, 0.85)');
+  grad.addColorStop(0.38, 'rgba(210, 160, 255, 0.35)');
+  grad.addColorStop(0.65, 'rgba(100, 160, 255, 0.12)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(canvas);
+}
+
+/**
+ * Constrói uma galáxia espiral tridimensional realista com braços de poeira cósmica
+ */
+function createSpiralGalaxy({
+  branches = 3,
+  radius = 12,
+  particleCount = 3200,
+  spin = 1.0,
+  coreColor = '#fff5e0',
+  midColor = '#38bdf8',
+  outerColor = '#a855f7',
+  position = [0, 0, 0],
+  rotation = [0, 0, 0],
+  scale = 1.0,
+  starTexture,
+  glowTexture
+}) {
+  const group = new THREE.Group();
+  group.position.set(...position);
+  group.rotation.set(...rotation);
+  group.scale.setScalar(scale);
+
+  const positions = new Float32Array(particleCount * 3);
+  const colors = new Float32Array(particleCount * 3);
+
+  const cCore = new THREE.Color(coreColor);
+  const cMid = new THREE.Color(midColor);
+  const cOuter = new THREE.Color(outerColor);
+
+  for (let i = 0; i < particleCount; i++) {
+    const i3 = i * 3;
+    const r = Math.pow(Math.random(), 2.2) * radius;
+    const branchAngle = ((i % branches) * 2 * Math.PI) / branches;
+    const spinAngle = r * spin;
+
+    const spread = 0.28 * (r + 0.3);
+    const rx = (Math.pow(Math.random(), 2.4) * (Math.random() < 0.5 ? 1 : -1)) * spread;
+    const ry = (Math.pow(Math.random(), 2.4) * (Math.random() < 0.5 ? 1 : -1)) * spread * 0.45;
+    const rz = (Math.pow(Math.random(), 2.4) * (Math.random() < 0.5 ? 1 : -1)) * spread;
+
+    positions[i3] = Math.cos(branchAngle + spinAngle) * r + rx;
+    positions[i3 + 1] = ry;
+    positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * r + rz;
+
+    let col;
+    if (r < radius * 0.22) {
+      col = cCore.clone().lerp(cMid, r / (radius * 0.22));
+    } else {
+      col = cMid.clone().lerp(cOuter, (r - radius * 0.22) / (radius * 0.78));
+    }
+    const brightness = 0.65 + Math.random() * 0.35;
+    colors[i3] = col.r * brightness;
+    colors[i3 + 1] = col.g * brightness;
+    colors[i3 + 2] = col.b * brightness;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.32 * scale,
+    sizeAttenuation: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    vertexColors: true,
+    map: starTexture,
+    transparent: true,
+    opacity: 0.85
+  });
+
+  const points = new THREE.Points(geo, mat);
+  group.add(points);
+
+  if (glowTexture) {
+    const spriteMat = new THREE.SpriteMaterial({
+      map: glowTexture,
+      color: new THREE.Color(coreColor),
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const sprite = new THREE.Sprite(spriteMat);
+    sprite.scale.set(radius * 0.55, radius * 0.55, 1);
+    group.add(sprite);
+  }
+
+  return group;
+}
+
 export default function OrbitalScene({ onSelect }) {
   const mount = useRef(null);
   const labels = useRef([]);
@@ -32,36 +160,123 @@ export default function OrbitalScene({ onSelect }) {
     host.prepend(renderer.domElement);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 300);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
 
-    // OrbitControls configurado para NÃO travar o scroll da página
+    // OrbitControls sem interceptar o scroll da página
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
     controls.enablePan = false;
-    controls.enableZoom = false; // DESLIGA O INTERCEPTADOR DE WHEEL DO MOUSE: Scroll da página 100% livre!
-    controls.minPolarAngle = 0.08;
-    controls.maxPolarAngle = Math.PI - 0.08;
+    controls.enableZoom = false; // Roda do mouse rola a página livremente!
+    controls.minPolarAngle = 0.1;
+    controls.maxPolarAngle = Math.PI / 2 + 0.12;
 
     // Iluminação espacial cinematográfica
-    const ambientLight = new THREE.AmbientLight(0xddeeff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xdceeff, 1.15);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.PointLight(0xffecc2, 120, 0, 1.2);
+    const sunLight = new THREE.PointLight(0xffecd2, 130, 0, 1.2);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    // Fundo sutil de poeira estelar cintilante
-    const starCount = 350;
+    // Texturas para partículas e galáxias
+    const starTexture = createStarTexture();
+    const glowTexture = createGalaxyGlowTexture();
+
+    // ── GALÁXIAS DESLUMBRANTES NO FUNDO CÓSMICO ──
+    const galaxies = [];
+
+    // 1. Galáxia Andrômeda (Grande Espiral Azul Celeste e Ouro) - Canto superior esquerdo no fundo profundo
+    const galaxy1 = createSpiralGalaxy({
+      branches: 3,
+      radius: 14,
+      particleCount: 3600,
+      spin: 1.1,
+      coreColor: '#FFF8E7',
+      midColor: '#38BDF8',
+      outerColor: '#818CF8',
+      position: [-38, 22, -48],
+      rotation: [0.85, 0.38, -0.48],
+      scale: 1.35,
+      starTexture,
+      glowTexture
+    });
+    scene.add(galaxy1);
+    galaxies.push(galaxy1);
+
+    // 2. Galáxia Rosa & Púrpura Imperial (Estilo Sombrero / Pinwheel) - Canto superior direito
+    const galaxy2 = createSpiralGalaxy({
+      branches: 4,
+      radius: 12,
+      particleCount: 3200,
+      spin: 0.95,
+      coreColor: '#FFF0F5',
+      midColor: '#F472B6',
+      outerColor: '#A855F7',
+      position: [40, 18, -52],
+      rotation: [-0.65, 0.65, 0.42],
+      scale: 1.2,
+      starTexture,
+      glowTexture
+    });
+    scene.add(galaxy2);
+    galaxies.push(galaxy2);
+
+    // 3. Galáxia Espiral Dourada Distante - Abaixo no horizonte cósmico
+    const galaxy3 = createSpiralGalaxy({
+      branches: 2,
+      radius: 10,
+      particleCount: 2400,
+      spin: 1.2,
+      coreColor: '#FEF3C7',
+      midColor: '#F59E0B',
+      outerColor: '#EA580C',
+      position: [4, -22, -56],
+      rotation: [0.45, -0.75, 0.32],
+      scale: 0.95,
+      starTexture,
+      glowTexture
+    });
+    scene.add(galaxy3);
+    galaxies.push(galaxy3);
+
+    // ── CAMPO ESTELAR PROFUNDO MULTICOLORIDO ──
+    const starCount = 1100;
     const starGeo = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount * 3; i += 3) {
-      starPositions[i] = (Math.random() - 0.5) * 120;
-      starPositions[i + 1] = (Math.random() - 0.5) * 80;
-      starPositions[i + 2] = (Math.random() - 0.5) * 120;
+    const starColors = new Float32Array(starCount * 3);
+
+    const celestialColors = [
+      new THREE.Color('#FFFFFF'),
+      new THREE.Color('#FFE4B5'),
+      new THREE.Color('#BAE6FD'),
+      new THREE.Color('#DDD6FE')
+    ];
+
+    for (let i = 0; i < starCount; i++) {
+      const i3 = i * 3;
+      starPositions[i3] = (Math.random() - 0.5) * 220;
+      starPositions[i3 + 1] = (Math.random() - 0.5) * 140;
+      starPositions[i3 + 2] = (Math.random() - 0.5) * 200;
+
+      const c = celestialColors[Math.floor(Math.random() * celestialColors.length)];
+      const bright = 0.5 + Math.random() * 0.5;
+      starColors[i3] = c.r * bright;
+      starColors[i3 + 1] = c.g * bright;
+      starColors[i3 + 2] = c.b * bright;
     }
     starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.6, transparent: true, opacity: 0.45 });
+    starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+    const starMat = new THREE.PointsMaterial({
+      size: 0.45,
+      vertexColors: true,
+      map: starTexture,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
     const stars = new THREE.Points(starGeo, starMat);
     scene.add(stars);
 
@@ -69,7 +284,7 @@ export default function OrbitalScene({ onSelect }) {
     const textures = [];
     let disposed = false;
 
-    // Criar astros e órbitas luminosas
+    // ── CRIAR ASTROS E ÓRBITAS LUMINOSAS ──
     const meshes = BODIES.map((body, index) => {
       const isSun = index === 0;
       const size = isSun ? 1.05 : [0.35, 0.48, 0.50, 0.38, 0.88, 0.72, 0.58, 0.56][index - 1];
@@ -109,18 +324,18 @@ export default function OrbitalScene({ onSelect }) {
 
       // Brilho solar (Corona)
       if (isSun) {
-        const coronaGeo = new THREE.SphereGeometry(size * 1.15, 32, 24);
+        const coronaGeo = new THREE.SphereGeometry(size * 1.18, 32, 24);
         const coronaMat = new THREE.MeshBasicMaterial({
           color: 0xffaa22,
           transparent: true,
-          opacity: 0.25,
+          opacity: 0.28,
           side: THREE.BackSide
         });
         const corona = new THREE.Mesh(coronaGeo, coronaMat);
         mesh.add(corona);
       }
 
-      // Linhas orbitais de alta fidelidade
+      // Linhas orbitais delicadas e luminosas
       if (index > 0) {
         const segments = 160;
         const points = [];
@@ -132,13 +347,13 @@ export default function OrbitalScene({ onSelect }) {
         const orbitMat = new THREE.LineBasicMaterial({
           color: 0xa8c4d8,
           transparent: true,
-          opacity: 0.18
+          opacity: 0.22
         });
         const orbit = new THREE.Line(orbitGeo, orbitMat);
         scene.add(orbit);
       }
 
-      // Anéis realistas de Saturno
+      // Anéis de Saturno
       if (body.hasRings) {
         const ringGeo = new THREE.RingGeometry(size * 1.45, size * 2.3, 64);
         const pos = ringGeo.attributes.position;
@@ -168,7 +383,7 @@ export default function OrbitalScene({ onSelect }) {
       return mesh;
     });
 
-    let fit = 46;
+    let fit = 44;
     const resize = () => {
       if (!host) return;
       const width = host.clientWidth;
@@ -177,8 +392,9 @@ export default function OrbitalScene({ onSelect }) {
 
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      fit = 44 / Math.min(1, camera.aspect);
-      camera.position.set(0, 0.68, 0.72).normalize().multiplyScalar(fit / zoom);
+      fit = 42 / Math.min(1, camera.aspect);
+      // Enquadramento suave e cinematográfico: ângulo de ~32° permitindo ver o fundo estelar e galáxias
+      camera.position.set(0, 0.52, 0.85).normalize().multiplyScalar(fit / zoom);
       controls.update();
       controls.saveState();
       renderer.setSize(width, height);
@@ -198,7 +414,7 @@ export default function OrbitalScene({ onSelect }) {
       reset: () => {
         controls.reset();
         setZoom(1);
-        camera.position.set(0, 0.68, 0.72).normalize().multiplyScalar(fit);
+        camera.position.set(0, 0.52, 0.85).normalize().multiplyScalar(fit);
         controls.update();
       }
     };
@@ -219,6 +435,14 @@ export default function OrbitalScene({ onSelect }) {
 
       elapsed += delta;
       controls.update();
+
+      // Rotação suave das galáxias de fundo
+      galaxies.forEach((gal, i) => {
+        gal.rotation.z += 0.0003 * (i % 2 === 0 ? 1 : -1);
+      });
+
+      // Movimento sutil do campo estelar
+      stars.rotation.y = elapsed * 0.002;
 
       meshes.forEach((mesh, index) => {
         const { radius, angle, size } = mesh.userData;
@@ -278,9 +502,15 @@ export default function OrbitalScene({ onSelect }) {
       renderer.domElement.removeEventListener('pointerup', up);
       scene.traverse(obj => {
         obj.geometry?.dispose();
-        obj.material?.dispose();
+        if (Array.isArray(obj.material)) {
+          obj.material.forEach(m => m.dispose());
+        } else {
+          obj.material?.dispose();
+        }
       });
       textures.forEach(t => t.dispose());
+      starTexture.dispose();
+      glowTexture.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       api.current = null;
@@ -288,18 +518,20 @@ export default function OrbitalScene({ onSelect }) {
   }, []);
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {/* ── PALCO 3D COM DESIGN REFINADO E SCROLL TOTALMENTE SEGURO ── */}
+    <div className="w-full flex flex-col items-center relative">
+      {/* Glow cósmico e nebulosas suaves no fundo natural do site */}
       <div 
-        className="w-full h-[480px] sm:h-[580px] lg:h-[640px] relative overflow-hidden rounded-3xl bg-midnight-950/80 border border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.9)]"
+        className="absolute inset-0 pointer-events-none -z-10 opacity-70"
+        style={{
+          background: 'radial-gradient(ellipse 75% 55% at 50% 50%, rgba(24, 38, 64, 0.4) 0%, rgba(30, 16, 46, 0.22) 50%, transparent 75%)',
+        }}
+      />
+
+      {/* ── PALCO 3D ABERTO E NATURAL (SEM ENQUADRAMENTO DE CAIXA / BORDAS) ── */}
+      <div 
+        className="w-full h-[580px] sm:h-[680px] lg:h-[760px] relative overflow-hidden bg-transparent"
         style={{ touchAction: 'pan-y' }}
       >
-        {/* Glow cósmico de fundo */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-30 blur-3xl"
-          style={{ background: 'radial-gradient(circle at 50% 50%, rgba(229,196,131,0.12) 0%, rgba(13,22,34,0.4) 60%, transparent 80%)' }}
-        />
-
         {/* Canvas WebGL Three.js */}
         <div 
           ref={mount} 
@@ -328,7 +560,7 @@ export default function OrbitalScene({ onSelect }) {
         </div>
 
         {/* Dica discreta no topo */}
-        <div className="absolute top-4 left-4 sm:left-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-midnight-900/60 border border-white/10 backdrop-blur-md text-[10px] font-mono text-gray-400 pointer-events-none">
+        <div className="absolute top-3 left-4 sm:left-6 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[10px] font-mono text-gray-400 pointer-events-none select-none">
           <Compass size={13} className="text-celestial-gold animate-spin" style={{ animationDuration: '12s' }} />
           <span>Arraste para orbitar o Sistema</span>
         </div>
@@ -368,7 +600,7 @@ export default function OrbitalScene({ onSelect }) {
       </div>
 
       {/* ── SELEÇÃO RÁPIDA DOS ASTROS: APENAS OS NOMES LIMPOS ── */}
-      <div className="w-full max-w-4xl mt-6 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-2">
+      <div className="w-full max-w-4xl mt-4 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap px-2">
         {BODIES.map(body => (
           <button
             key={body.id}
