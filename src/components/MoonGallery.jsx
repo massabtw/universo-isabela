@@ -80,8 +80,8 @@ export default function MoonGallery() {
           </p>
         </motion.div>
 
-        {/* Grade de Fotos Estilo Galeria de Arte Noturna */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+        {/* Grade de Fotos Estilo Galeria de Arte Noturna - 3 Registros da Bela */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl w-full mx-auto">
           {LUNAR_PHOTOS.map((photo, index) => {
             const displaySrc = getDisplaySrc(photo);
 
@@ -94,9 +94,9 @@ export default function MoonGallery() {
                 transition={{ duration: 0.6, delay: index * 0.12 }}
                 whileHover={{ y: -6 }}
                 onClick={() => setSelectedPhoto(photo)}
-                className="group relative cursor-pointer bg-midnight-900/60 backdrop-blur-xl border border-white/10 hover:border-celestial-gold/40 rounded-3xl p-4 shadow-2xl transition-all duration-500 overflow-hidden flex flex-col"
+                className="group relative cursor-pointer bg-midnight-900/60 backdrop-blur-xl border border-white/10 hover:border-celestial-gold/40 rounded-3xl p-4 sm:p-5 shadow-2xl transition-all duration-500 overflow-hidden flex flex-col"
               >
-                {/* Moldura da Foto com Aspecto Quadrado/Vertical */}
+                {/* Moldura da Foto com Aspecto Elegante */}
                 <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-black/80 mb-4 border border-white/5">
                   <img
                     src={displaySrc}
@@ -121,7 +121,7 @@ export default function MoonGallery() {
                       <span>{photo.date}</span>
                       <span>#0{photo.id}</span>
                     </div>
-                    <h4 className="font-serif text-base text-celestial-starlight group-hover:text-celestial-gold transition-colors">
+                    <h4 className="font-serif text-lg text-celestial-starlight group-hover:text-celestial-gold transition-colors">
                       {photo.title}
                     </h4>
                   </div>
@@ -133,19 +133,6 @@ export default function MoonGallery() {
             );
           })}
         </div>
-
-        {/* Instrução Amigável para Adicionar Fotos */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-12 text-center"
-        >
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-midnight-900/60 border border-white/10 text-xs text-gray-400 font-mono">
-            <span className="text-celestial-gold">📸</span>
-            <span>Para colocar as fotos reais dela: basta salvar como <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua1.jpg</code> (ou .png), <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">lua2.jpg</code> na pasta <code className="text-celestial-starlight bg-white/10 px-1.5 py-0.5 rounded">public/fotos/</code></span>
-          </div>
-        </motion.div>
 
       </div>
 

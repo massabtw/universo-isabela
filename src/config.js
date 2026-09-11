@@ -154,39 +154,30 @@ export const MUSIC = {
 };
 
 // ─── Galeria Lunar ("A Lua Pelos Olhos da Bela") ───
-// Coloque os arquivos de imagem na pasta: public/fotos/
-// Você pode alterar títulos, legendas, datas ou nomes dos arquivos aqui:
+// Fotos registradas pela Bela
 export const LUNAR_PHOTOS = [
   {
     id: 1,
-    file: "/fotos/lua1.jpg",
+    file: "/fotos/lua1.jpeg",
     fallback: "/moon_2007.jpg",
-    title: "Crescente ao Entardecer",
-    caption: "A delicadeza do primeiro fio de prata recortando o céu azul-marinho.",
-    date: "Registro da Bela",
+    title: "Registros da Bela I",
+    caption: "A Lua observada e fotografada pelo olhar sensível da Bela.",
+    date: "Registros da Bela",
   },
   {
     id: 2,
-    file: "/fotos/lua2.jpg",
+    file: "/fotos/lua2.jpeg",
     fallback: "/moon_full.jpg",
-    title: "A Lua Cheia Radiante",
-    caption: "Quando a noite inteira se ilumina e parece não existir escuridão no mundo.",
-    date: "Noite de Brilho",
+    title: "Registros da Bela II",
+    caption: "O brilho prateado iluminando a calmaria da noite.",
+    date: "Registros da Bela",
   },
   {
     id: 3,
-    file: "/fotos/lua3.jpg",
+    file: "/fotos/lua3.jpeg",
     fallback: "/moon_2007.jpg",
-    title: "Crateras & Relevo Noturno",
-    caption: "O olhar atento para os mínimos detalhes que a maioria deixa passar batido.",
-    date: "Pelo Telescópio / Lente",
-  },
-  {
-    id: 4,
-    file: "/fotos/lua4.jpg",
-    fallback: "/moon_full.jpg",
-    title: "Sob o Manto da Noite",
-    caption: "A paz silenciosa de quem encontra no cosmos o seu verdadeiro refúgio.",
-    date: "Momento Eternizado",
+    title: "Registros da Bela III",
+    caption: "O fascínio e o encanto pelo cosmos eternizados em uma imagem.",
+    date: "Registros da Bela",
   },
 ];
