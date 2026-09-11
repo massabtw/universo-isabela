@@ -107,6 +107,14 @@ export default function Header() {
     // Rola imediatamente e confirma após 80ms para garantir qualquer recalculo de layout
     performScroll();
     setTimeout(performScroll, 80);
+
+    // Atualiza a URL e avisa os componentes que escutam a mudança de hash
+    if (window.history.pushState) {
+      window.history.pushState(null, '', href);
+      window.dispatchEvent(new Event('hashchange'));
+    } else {
+      window.location.hash = href;
+    }
   };
 
   return (

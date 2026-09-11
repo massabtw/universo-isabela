@@ -22,7 +22,10 @@ export default function SolarSystemMap() {
         <p>{active ? body.subtitle : 'Oito mundos, uma estrela e infinitas histórias.'}</p>
       </header>
 
-      <div className="solar-content relative w-full min-h-[520px]">
+      <div 
+        className="solar-content relative w-full min-h-[520px] grid" 
+        style={{ gridTemplateColumns: '1fr', gridTemplateRows: '1fr', alignItems: 'start' }}
+      >
         {/* Cena Orbital 3D - Mantida montada para transição instantânea e ultra fluida */}
         <motion.div
           key="orbits-persistent"
@@ -34,8 +37,8 @@ export default function SolarSystemMap() {
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           style={{
             pointerEvents: active ? 'none' : 'auto',
-            position: active ? 'absolute' : 'relative',
-            inset: active ? 0 : 'auto',
+            gridColumn: 1,
+            gridRow: 1,
             width: '100%',
             zIndex: active ? 0 : 10,
           }}
@@ -52,7 +55,12 @@ export default function SolarSystemMap() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: reduced ? 0 : 20, scale: reduced ? 1 : 0.96 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full relative z-20"
+              style={{
+                gridColumn: 1,
+                gridRow: 1,
+                width: '100%',
+                zIndex: 20,
+              }}
             >
               <div className="planet-navigation">
                 <button 

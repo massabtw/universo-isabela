@@ -60,12 +60,21 @@ export default function CountdownScreen({ targetDate, onComplete }) {
   const [isExploding, setIsExploding] = useState(false);
   const [flashOpacity, setFlashOpacity] = useState(0);
   const [isBlackout, setIsBlackout] = useState(false);
+  const [belaClicks, setBelaClicks] = useState(0);
 
   const canvasRef = useRef(null);
   const animIdRef = useRef(null);
 
   const calculateTimeLeft = () => getTimeLeft(targetDate);
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
+
+  const handleBelaClick = () => {
+    const newClicks = belaClicks + 1;
+    setBelaClicks(newClicks);
+    if (newClicks >= 3) {
+      triggerBigBang();
+    }
+  };
 
   // Disparo do Big Bang com sequência cinematográfica mais longa
   const triggerBigBang = () => {
@@ -261,7 +270,12 @@ export default function CountdownScreen({ targetDate, onComplete }) {
                   </span>
                   <span className="block text-4xl sm:text-6xl lg:text-7xl tracking-tight">
                     <span className="text-white">da </span>
-                    <span className="text-[#E5C483]">Bela.</span>
+                    <span 
+                      className="text-[#E5C483] cursor-pointer"
+                      onClick={handleBelaClick}
+                    >
+                      Bela.
+                    </span>
                   </span>
                 </h1>
 
@@ -287,19 +301,6 @@ export default function CountdownScreen({ targetDate, onComplete }) {
                     </div>
                   ))}
                 </div>
-
-                {/* CTA dourado sólido */}
-                <button
-                  onClick={triggerBigBang}
-                  className="self-start flex items-center gap-2.5 px-6 py-3 rounded-sm bg-[#E5C483] hover:bg-[#D4B070] text-[#03070E] text-xs sm:text-sm font-medium tracking-wide transition-all duration-200 cursor-pointer active:scale-95 shadow-[0_0_25px_rgba(229,196,131,0.35)]"
-                >
-                  Antecipar o Big Bang
-                  <span className="text-base">↗</span>
-                </button>
-
-                <p className="text-[10px] sm:text-[11px] text-gray-500 font-mono mt-3">
-                  Uma prévia do universo que espera por você.
-                </p>
 
                 {/* Rodapé da esquerda */}
                 <div className="flex items-center gap-4 sm:gap-6 mt-10 sm:mt-14 pt-6 border-t border-white/[0.07]">

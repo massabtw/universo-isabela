@@ -442,8 +442,8 @@ export default function CosmicAgeCalculator() {
                           scaleX: [1, 1.15, 0.96, 1.12, 1],
                         }
                       : { 
-                          y: [0, -1.5, 0],
-                          scaleY: [1, 1.015, 1],
+                          y: 0,
+                          scaleY: [1, 0.98, 1],
                         }
                   }
                   transition={
