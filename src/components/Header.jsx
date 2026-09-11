@@ -17,9 +17,8 @@ const NAV_ITEMS = [
   { label: "Constelação", href: "#constelacao", icon: "✧", subtitle: "Virgem no Céu Estelar" },
   { label: "Sistema Solar", href: "#sistema-solar", icon: "🪐", subtitle: "Órbitas e Modelos 3D" },
   { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
-  { label: "Mini Games", href: "#mini-games", icon: "🎮", subtitle: "Gravidade & Quiz", action: "games", highlight: true },
+  { label: "19 Anos & Games", href: "#calculadora-cosmica", icon: "🎮", subtitle: "Odisséia, Gravidade & Quiz" },
   { label: "Carta", href: "#mensagem", icon: "💌", subtitle: "Envelope Selado" },
-  { label: "19 anos", href: "#calculadora-cosmica", icon: "⏳", subtitle: "Sua Idade no Cosmos" },
 ];
 
 export default function Header() {
@@ -29,7 +28,6 @@ export default function Header() {
   useEffect(() => {
     if (!isMobileMenuOpen) return;
     const drawer = drawerRef.current;
-    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const background = [document.querySelector('main'), document.querySelector('.music-player')].filter(Boolean);
     background.forEach(element => element.inert = true);
@@ -43,10 +41,9 @@ export default function Header() {
     };
     drawer?.addEventListener('keydown', trapFocus);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = '';
       background.forEach(element => element.inert = false);
       drawer?.removeEventListener('keydown', trapFocus);
-      menuButtonRef.current?.focus({ preventScroll: true });
     };
   }, [isMobileMenuOpen]);
   const { scrollYProgress } = useScroll();
@@ -59,7 +56,10 @@ export default function Header() {
   // Fecha o menu móvel ao redimensionar para desktop ou pressionar Esc
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape") setIsMobileMenuOpen(false);
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        menuButtonRef.current?.focus({ preventScroll: true });
+      }
     };
     const handleResize = () => {
       if (window.innerWidth >= 768) setIsMobileMenuOpen(false);
@@ -73,35 +73,40 @@ export default function Header() {
   }, []);
 
   const handleNavClick = (item) => {
-    // Desbloqueia overflow e inert imediatamente se a sidebar estiver aberta
+    // Desbloqueia overflow e inert imediatamente caso a sidebar móvel esteja aberta
     document.body.style.overflow = '';
     const background = [document.querySelector('main'), document.querySelector('.music-player')].filter(Boolean);
-    background.forEach(element => element.inert = false);
+    background.forEach(el => { el.inert = false; });
     setIsMobileMenuOpen(false);
-    
-    setTimeout(() => {
-      if (item.action === 'games' || item.href === '#mini-games') {
-        window.dispatchEvent(new CustomEvent('open-cosmic-tab', { detail: { tab: 'salto' } }));
-        const target = document.querySelector('#mini-games') || document.querySelector('#calculadora-cosmica');
-        if (target) {
-          if (window.lenis) {
-            window.lenis.scrollTo(target, { offset: -60, duration: 1.2 });
-          } else {
-            target.scrollIntoView({ behavior: "smooth" });
-          }
+
+    const href = typeof item === 'string' ? item : item.href;
+    const target = document.querySelector(href) || (href === '#calculadora-cosmica' ? document.querySelector('#mini-games') : null);
+    if (!target) return;
+
+    const performScroll = () => {
+      const lenis = window.lenisInstance;
+      if (lenis && typeof lenis.scrollTo === 'function') {
+        try {
+          lenis.scrollTo(target, { offset: -70, force: true });
+          return;
+        } catch (err) {
+          console.warn('Lenis scroll fallback:', err);
         }
-        return;
       }
 
-      const target = document.querySelector(item.href);
-      if (target) {
-        if (window.lenis) {
-          window.lenis.scrollTo(target, { offset: -60, duration: 1.2 });
-        } else {
-          target.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    }, 60);
+      // Fallback nativo absoluto em pixels
+      const headerOffset = 70;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    };
+
+    // Rola imediatamente e confirma após 80ms para garantir qualquer recalculo de layout
+    performScroll();
+    setTimeout(performScroll, 80);
   };
 
   return (
@@ -148,11 +153,7 @@ export default function Header() {
                   e.preventDefault();
                   handleNavClick(item);
                 }}
-                className={`text-[10.5px] lg:text-[11px] uppercase tracking-[0.18em] transition-colors duration-300 font-sans cursor-pointer py-1 ${
-                  item.highlight
-                    ? "text-celestial-gold font-semibold drop-shadow-[0_0_8px_rgba(229,196,131,0.5)]"
-                    : "text-gray-400 hover:text-celestial-gold"
-                }`}
+                className="text-[10.5px] lg:text-[11px] uppercase tracking-[0.18em] transition-colors duration-300 font-sans cursor-pointer py-1 text-gray-400 hover:text-celestial-gold"
               >
                 {item.label}
               </a>
@@ -244,23 +245,13 @@ export default function Header() {
                       initial={{ opacity: 0, x: 15 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.04 * idx, duration: 0.3 }}
-                      className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all group cursor-pointer ${
-                        item.highlight
-                          ? "bg-celestial-gold/10 border-celestial-gold/40 shadow-[0_0_15px_rgba(229,196,131,0.15)]"
-                          : "bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.06] hover:border-celestial-gold/40"
-                      }`}
+                      className="flex items-center gap-3.5 p-3 rounded-2xl border border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.08] hover:border-celestial-gold/40 transition-all group cursor-pointer"
                     >
-                      <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform ${
-                        item.highlight
-                          ? "bg-celestial-gold/20 border border-celestial-gold/50 text-celestial-gold"
-                          : "bg-celestial-gold/10 border border-celestial-gold/30"
-                      }`}>
+                      <span className="w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform bg-celestial-gold/10 border border-celestial-gold/30">
                         {item.icon}
                       </span>
                       <div className="flex flex-col">
-                        <span className={`text-xs font-mono uppercase tracking-wider transition-colors font-medium ${
-                          item.highlight ? "text-celestial-gold font-semibold" : "text-celestial-starlight group-hover:text-celestial-gold"
-                        }`}>
+                        <span className="text-xs font-mono uppercase tracking-wider transition-colors font-medium text-celestial-starlight group-hover:text-celestial-gold">
                           {item.label}
                         </span>
                         <span className="text-[10px] text-gray-400 font-light">
