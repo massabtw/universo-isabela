@@ -1,22 +1,24 @@
 /**
  * ====================================================================
- * CountdownScreen.jsx — Redesign: Split Layout com Lua Fotorrealista
+ * CountdownScreen.jsx — Split Layout Elegante com Lua Fotorrealista
  * ====================================================================
  *
- * Layout partido esquerda/direita:
- * - Esquerda: título "Aniversário / da Bela." (Bela. em dourado),
- *   subtítulo, contador D·H·M·S alinhado à esquerda, CTA dourado
- * - Direita: espaço reservado para a Lua (vem do MoonLayer em App.jsx)
- *
- * Eventos: onPhaseChange("bigbang") ao disparar Big Bang,
- *          onComplete() depois de 2.9s para abrir o universo.
+ * - Entrada suave da Lua com fade-in cinematográfico (sem glitch de spawn)
+ * - Título em duas linhas: "Aniversário / da Bela." ("Bela." em dourado)
+ * - Cronômetro D · H · MIN · SEG alinhado à esquerda
+ * - Botão CTA dourado sólido "Antecipar o Big Bang ↗"
+ * - Transição pós-Big Bang:
+ *   1. Clarão de luz e linhas warp com som cósmico
+ *   2. Textos da esquerda somem
+ *   3. Frase centralizada: "A exposição espacial começa"
+ *   4. Tela preta suave (fade to black) antes de abrir a Hero Section
  */
 
 import { getTimeLeft } from "../utils/countdown";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Áudio cósmico sintetizado
+// Áudio cósmico sintetizado instantâneo e leve
 function playBigBangBoom() {
   try {
     const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -25,6 +27,7 @@ function playBigBangBoom() {
     if (ctx.state === "suspended") ctx.resume();
     const now = ctx.currentTime;
 
+    // Sub-bass impact
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = "sine";
@@ -37,6 +40,7 @@ function playBigBangBoom() {
     osc.start(now);
     osc.stop(now + 1.8);
 
+    // Noise wash
     const bufferSize = Math.floor(ctx.sampleRate * 1.5);
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -58,26 +62,41 @@ function playBigBangBoom() {
   } catch (e) {}
 }
 
-export default function CountdownScreen({ targetDate, onComplete, onPhaseChange }) {
+export default function CountdownScreen({ targetDate, onComplete }) {
   const [isExploding, setIsExploding] = useState(false);
   const [flashOpacity, setFlashOpacity] = useState(0);
+  const [isBlackout, setIsBlackout] = useState(false);
+
   const canvasRef = useRef(null);
   const animIdRef = useRef(null);
 
   const calculateTimeLeft = () => getTimeLeft(targetDate);
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
 
+  // Disparo do Big Bang com sequência cinematográfica
   const triggerBigBang = () => {
     if (isExploding) return;
     setIsExploding(true);
     playBigBangBoom();
-    onPhaseChange?.("bigbang");
 
+    // 1. Clarão imediato
     setFlashOpacity(1);
     startWarpStars();
 
-    setTimeout(() => setFlashOpacity(0), 550);
-    setTimeout(() => onComplete(), 2900);
+    // 2. Dissolve o clarão
+    setTimeout(() => {
+      setFlashOpacity(0);
+    }, 500);
+
+    // 3. Após "A exposição espacial começa", tela preta suave
+    setTimeout(() => {
+      setIsBlackout(true);
+    }, 2100);
+
+    // 4. Conclui e abre a HeroSection
+    setTimeout(() => {
+      onComplete();
+    }, 2800);
   };
 
   useEffect(() => {
@@ -99,7 +118,7 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
     };
   }, [targetDate, isExploding]);
 
-  // Canvas de estrelas de fundo
+  // Canvas de estrelas de fundo estático e leve
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -158,11 +177,11 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 25 + 15;
       return {
-        x: cx, y: cy,
+        x: cx,
+        y: cy,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         color: Math.random() > 0.3 ? "#FFFFFF" : Math.random() > 0.5 ? "#E5C483" : "#80D0FF",
-        alpha: 1,
       };
     });
 
@@ -199,7 +218,15 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
         style={{ opacity: flashOpacity }}
       />
 
-      {/* ── ONDA DE EXPANSÃO ── */}
+      {/* ── TELA PRETA RÁPIDA (FADE TO BLACK PÓS MENSAGEM) ── */}
+      <motion.div
+        className="absolute inset-0 bg-black pointer-events-none z-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isBlackout ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: "easeInOut" }}
+      />
+
+      {/* ── ONDA DE EXPANSÃO ÓPTICA ── */}
       {isExploding && (
         <motion.div
           initial={{ scale: 0.1, opacity: 0.9 }}
@@ -209,13 +236,13 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
         />
       )}
 
-      {/* ── HEADER (aparece depois da explosão) ── */}
+      {/* ── HEADER MINIMALISTA (aparece durante o Big Bang) ── */}
       <AnimatePresence>
         {isExploding && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
             className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-8 pt-6"
           >
             <span className="font-serif text-sm text-celestial-starlight tracking-wide">
@@ -228,15 +255,13 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
         )}
       </AnimatePresence>
 
-      {/* ── CONTEÚDO SPLIT: ESQUERDA ── */}
-      <div className="relative z-10 min-h-screen flex flex-col md:flex-row">
+      {/* ── CONTEÚDO SPLIT: ESQUERDA & DIREITA ── */}
+      <div className="relative z-10 min-h-screen flex flex-col md:flex-row items-center">
 
         {/* COLUNA ESQUERDA — Textos do countdown */}
-        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[600px]">
-
+        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[620px] w-full">
           <AnimatePresence mode="wait">
-            {!isExploding ? (
-              /* ── ESTADO NORMAL: Countdown ── */
+            {!isExploding && (
               <motion.div
                 key="countdown-content"
                 initial={{ opacity: 0, y: 16 }}
@@ -265,14 +290,14 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
                   O cosmos aguarda o início dos seus 19 anos.
                 </p>
 
-                {/* Contador — alinhado à esquerda, sem centrar */}
+                {/* Contador alinhado à esquerda */}
                 <div className="flex items-end gap-5 sm:gap-8 mb-10">
                   {[
                     { value: timeLeft.days, label: "dias" },
                     { value: timeLeft.hours, label: "horas" },
                     { value: timeLeft.minutes, label: "min" },
                     { value: timeLeft.seconds, label: "seg" },
-                  ].map(({ value, label }, i) => (
+                  ].map(({ value, label }) => (
                     <div key={label} className="flex flex-col items-start">
                       <span className="tabular-nums font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-white leading-none tracking-tight">
                         {pad(value)}
@@ -300,33 +325,53 @@ export default function CountdownScreen({ targetDate, onComplete, onPhaseChange 
                   <span className="text-[11px] font-mono text-gray-500 ml-auto hidden sm:block">Desde 14.09.2007</span>
                 </div>
               </motion.div>
-            ) : (
-              /* ── ESTADO PÓS BIG BANG ── */
-              <motion.div
-                key="bigbang-content"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.35, duration: 0.9 }}
-                className="flex flex-col items-start"
-              >
-                {/* Nada — os textos sumiram, só a mensagem central na tela */}
-              </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* COLUNA DIREITA — Espaço reservado para a Lua (MoonLayer é fixed) */}
-        <div className="hidden md:block md:w-1/2 flex-1" aria-hidden="true" />
+        {/* ── LUA FOTORREALISTA DA TELA DE ESPERA (com fade-in suave, sem spawn brusco) ── */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: isExploding ? 0.6 : 1, scale: 1 }}
+          transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-[-14vw] top-1/2 -translate-y-1/2 w-[clamp(380px,58vw,820px)] aspect-square pointer-events-none select-none z-10 hidden md:block"
+        >
+          {/* Halo suave cósmico */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 35% 40%, rgba(180,160,120,0.2) 0%, rgba(60,50,30,0.08) 55%, transparent 75%)",
+              transform: "scale(1.15)",
+              filter: "blur(22px)",
+            }}
+          />
+
+          <img
+            src="/moon_full.jpg"
+            alt="Lua"
+            aria-hidden="true"
+            className="w-full h-full object-cover rounded-full"
+            style={{
+              maskImage:
+                "radial-gradient(circle at 50% 50%, black 58%, transparent 75%)",
+              WebkitMaskImage:
+                "radial-gradient(circle at 50% 50%, black 58%, transparent 75%)",
+              filter: "brightness(0.88) contrast(1.08) saturate(0.85)",
+            }}
+            draggable={false}
+          />
+        </motion.div>
       </div>
 
-      {/* ── MENSAGEM "A exposição espacial começa" (centralizada na tela pós-bang) ── */}
+      {/* ── MENSAGEM PÓS-BIG BANG: "A exposição espacial começa" ── */}
       <AnimatePresence>
-        {isExploding && (
+        {isExploding && !isBlackout && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ delay: 0.5, duration: 1.0 }}
+            transition={{ delay: 0.45, duration: 0.8 }}
             className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
           >
             <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight text-center px-6">
