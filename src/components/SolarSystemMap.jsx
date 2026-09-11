@@ -81,7 +81,7 @@ export default function SolarSystemMap() {
   return (
     <section 
       id="sistema-solar" 
-      className="relative z-10 py-20 sm:py-28 px-4 sm:px-6 md:px-10 flex flex-col items-center justify-center overflow-hidden bg-transparent select-none"
+      className="relative z-10 py-20 sm:py-28 px-4 sm:px-6 md:px-10 flex flex-col items-center justify-center overflow-hidden bg-transparent"
     >
       {/* Brilho Cósmico Difuso Central Adaptativo */}
       <div 
@@ -349,13 +349,13 @@ export default function SolarSystemMap() {
                 </motion.div>
 
                 {/* ── GRID SPLIT: 3D NA ESQUERDA + CURIOSIDADES NA DIREITA ── */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full">
                   
                   {/* ── LADO ESQUERDO: GLOBO 3D INTERATIVO GIGANTE (SEM BORDAS) ── */}
-                  <div className="lg:col-span-6 flex flex-col items-center justify-center relative min-h-[400px]">
+                  <div className="lg:col-span-6 flex flex-col items-center justify-center relative min-h-[280px] sm:min-h-[350px] md:min-h-[400px]">
                     
-                    {/* Container do Visor 3D: Clean e focado em 60fps sem distorção */}
-                    <div className="relative w-full aspect-square max-w-[460px] rounded-full flex items-center justify-center z-10">
+                    {/* Container do Visor 3D: Otimizado para celular e desktop */}
+                    <div className="relative w-full aspect-square max-w-[300px] sm:max-w-[380px] md:max-w-[450px] rounded-full flex items-center justify-center z-10">
                       {/* Brilho da Auréola Atmosférica de Fundo */}
                       <div 
                         className="absolute inset-0 pointer-events-none blur-3xl rounded-full opacity-40 transition-opacity duration-700"
@@ -384,11 +384,11 @@ export default function SolarSystemMap() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="flex items-center gap-2 mt-6 p-1.5 rounded-full bg-midnight-950/80 border border-white/15 shadow-xl"
+                        className="flex items-center gap-2 mt-4 sm:mt-6 p-1.5 rounded-full bg-midnight-950/80 border border-white/15 shadow-xl"
                       >
                         <button
                           onClick={() => setViewingSatellite(false)}
-                          className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
                             !viewingSatellite 
                               ? "bg-blue-600 text-white font-medium shadow-md shadow-blue-500/20 scale-105" 
                               : "text-gray-400 hover:text-white"
@@ -398,7 +398,7 @@ export default function SolarSystemMap() {
                         </button>
                         <button
                           onClick={() => setViewingSatellite(true)}
-                          className={`px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
+                          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-mono transition-all cursor-pointer ${
                             viewingSatellite 
                               ? "bg-celestial-gold text-midnight-950 font-medium shadow-md shadow-celestial-gold/20 scale-105" 
                               : "text-gray-400 hover:text-white"
@@ -415,99 +415,173 @@ export default function SolarSystemMap() {
                   <motion.div 
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: 0.15 }}
-                    className="lg:col-span-6 flex flex-col justify-between gap-6 text-left p-6 sm:p-8 rounded-3xl bg-midnight-900/40 border border-white/10 backdrop-blur-xl shadow-2xl relative overflow-hidden"
+                    transition={{ duration: 0.35, delay: 0.1 }}
+                    className="lg:col-span-6 flex flex-col gap-5 text-left p-4 sm:p-7 md:p-8 rounded-2xl sm:rounded-3xl bg-midnight-900/60 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden select-text"
                   >
-                    {/* Filete superior com a cor do astro */}
+                    {/* Filete superior luminoso com a cor do astro */}
                     <div 
-                      className="absolute top-0 left-0 right-0 h-1.5 transition-colors duration-500"
-                      style={{ backgroundColor: activeAstro.color }}
+                      className="absolute top-0 left-0 right-0 h-1 transition-colors duration-500 shadow-sm"
+                      style={{ 
+                        backgroundColor: current3DObject.color,
+                        boxShadow: `0 0 12px ${current3DObject.color}88` 
+                      }}
                     />
 
-                    {/* Cabeçalho do Astro */}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-2xl" style={{ color: current3DObject.color }}>
-                          {current3DObject.symbol}
-                        </span>
-                        <span className="text-xs uppercase tracking-[0.3em] font-mono text-celestial-gold">
-                          {current3DObject.tag || "CORPO CELESTE"}
-                        </span>
-                      </div>
+                    {/* Transição suave de conteúdo ao alternar de planeta */}
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={current3DObject.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.25 }}
+                        className="flex flex-col gap-4 sm:gap-5 w-full"
+                      >
+                        {/* Cabeçalho do Astro */}
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span 
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-mono font-medium tracking-wider uppercase border shadow-sm"
+                              style={{
+                                backgroundColor: `${current3DObject.color}18`,
+                                color: current3DObject.color,
+                                borderColor: `${current3DObject.color}45`,
+                              }}
+                            >
+                              <span className="text-sm leading-none">{current3DObject.symbol}</span>
+                              <span>{current3DObject.tag || "CORPO CELESTE"}</span>
+                            </span>
+                            <span className="text-[11px] font-mono text-gray-400">
+                              {current3DObject.id === "sol" 
+                                ? "Estrela Central" 
+                                : current3DObject.id === "lua" 
+                                ? "Satélite Natural da Terra" 
+                                : `Posição #${current3DObject.order} do Sol`}
+                            </span>
+                          </div>
 
-                      <h3 className="font-serif text-3xl sm:text-4xl md:text-5xl text-white tracking-tight">
-                        {current3DObject.name}
-                      </h3>
+                          <h3 className="font-serif text-2xl sm:text-4xl md:text-5xl text-white tracking-tight leading-tight">
+                            {current3DObject.name}
+                          </h3>
 
-                      <p className="text-sm sm:text-base text-gray-400 font-light mt-2">
-                        {current3DObject.subtitle}
-                      </p>
-                    </div>
+                          <p className="text-xs sm:text-sm text-gray-300 font-light mt-1.5 leading-relaxed">
+                            {current3DObject.subtitle}
+                          </p>
+                        </div>
 
-                    {/* Card de Destaque Especial (Conexão da Bela: Marty / Cratera Isabella / A Lua) */}
-                    {current3DObject.highlightText && (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-celestial-gold/30 shadow-inner">
-                        <h4 className="text-xs font-mono uppercase tracking-wider text-celestial-gold mb-2 flex items-center gap-1.5 font-bold">
-                          <span>✦</span> {current3DObject.highlightTitle || "Conexão Cósmica:"}
-                        </h4>
-                        <p className="text-sm text-gray-200 leading-relaxed font-light whitespace-pre-line">
-                          {current3DObject.highlightText}
-                        </p>
-                      </div>
-                    )}
+                        {/* Card de Destaque Especial (Conexão da Bela: Marty / Cratera Isabella / A Lua / Sol) */}
+                        {current3DObject.highlightText && (
+                          <div 
+                            className="p-4 sm:p-5 rounded-2xl border shadow-lg backdrop-blur-md relative overflow-hidden"
+                            style={{
+                              background: `linear-gradient(135deg, ${current3DObject.color}15 0%, rgba(10, 18, 38, 0.75) 100%)`,
+                              borderColor: `${current3DObject.color}40`,
+                            }}
+                          >
+                            <div className="flex items-center gap-2 mb-2.5">
+                              <span className="text-sm" style={{ color: current3DObject.color }}>✦</span>
+                              <h4 
+                                className="font-mono text-xs sm:text-sm font-semibold tracking-wide uppercase"
+                                style={{ color: current3DObject.color }}
+                              >
+                                {(current3DObject.highlightTitle || "Conexão Cósmica").replace(/:$/, "")}
+                              </h4>
+                            </div>
+                            <div className="space-y-2">
+                              {current3DObject.highlightText.split("\n\n").map((paragraph, pIdx) => (
+                                <p key={pIdx} className="text-xs sm:text-sm text-gray-200 leading-relaxed font-light">
+                                  {paragraph}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-                    {/* Fatos Científicos da NASA */}
-                    {current3DObject.facts && (
-                      <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
-                        <h4 className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2.5">
-                          Dados Científicos da NASA:
-                        </h4>
-                        <ul className="space-y-2">
-                          {current3DObject.facts.map((fact, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-xs text-gray-300 font-light leading-relaxed">
-                              <span className="text-celestial-gold mt-0.5">•</span>
-                              <span>{fact}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                        {/* Fatos Científicos da NASA */}
+                        {current3DObject.facts && (
+                          <div className="p-4 sm:p-5 rounded-2xl bg-midnight-950/70 border border-white/10 flex flex-col gap-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-celestial-gold">🪐</span>
+                              <h4 className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-celestial-gold font-semibold">
+                                Curiosidades Astronômicas da NASA
+                              </h4>
+                            </div>
+                            <ul className="space-y-2">
+                              {current3DObject.facts.map((fact, idx) => (
+                                <li 
+                                  key={idx} 
+                                  className="flex items-start gap-2.5 text-xs sm:text-[13px] text-gray-300 leading-relaxed font-light bg-white/[0.02] hover:bg-white/[0.04] p-2.5 rounded-xl border border-white/[0.05] transition-colors"
+                                >
+                                  <span className="text-celestial-gold font-bold text-xs mt-0.5 shrink-0">✦</span>
+                                  <span>{fact}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
 
-                    {/* Grid de Especificações Astronômicas Detalhadas */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2">
-                      <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-mono text-gray-400">Diâmetro</span>
-                        <span className="text-xs sm:text-sm font-semibold text-white font-mono">
-                          {current3DObject.diameter || "—"}
-                        </span>
-                      </div>
+                        {/* Grid Sincronizado de Especificações Astronômicas Detalhadas (2x2) */}
+                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+                          {/* 1. Diâmetro */}
+                          <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors flex flex-col justify-center">
+                            <span className="text-[10px] uppercase font-mono tracking-wider text-gray-400">
+                              Diâmetro
+                            </span>
+                            <span className="text-xs sm:text-sm font-semibold text-white font-mono mt-0.5 leading-snug break-words">
+                              {current3DObject.diameter || "—"}
+                            </span>
+                          </div>
 
-                      <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-mono text-gray-400">
-                          {current3DObject.id === "sol" ? "Posição" : current3DObject.id === "lua" ? "Distância Terra" : "Distância Sol"}
-                        </span>
-                        <span className="text-xs sm:text-sm font-semibold text-white font-mono">
-                          {current3DObject.distanceSun || current3DObject.distanceCenter || "—"}
-                        </span>
-                      </div>
+                          {/* 2. Distância */}
+                          <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors flex flex-col justify-center">
+                            <span className="text-[10px] uppercase font-mono tracking-wider text-gray-400">
+                              {current3DObject.id === "sol" 
+                                ? "Posição Cósmica" 
+                                : current3DObject.id === "lua" 
+                                ? "Distância da Terra" 
+                                : "Distância do Sol"}
+                            </span>
+                            <span className="text-xs sm:text-sm font-semibold text-white font-mono mt-0.5 leading-snug break-words">
+                              {current3DObject.distanceSun || current3DObject.distanceCenter || "—"}
+                            </span>
+                          </div>
 
-                      <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex items-center justify-between">
-                        <span className="text-[10px] uppercase font-mono text-gray-400">Duração do Ano</span>
-                        <span className="text-xs sm:text-sm font-semibold text-white font-mono">
-                          {current3DObject.orbitalPeriod || "—"}
-                        </span>
-                      </div>
+                          {/* 3. Duração do Ano */}
+                          <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors flex flex-col justify-center">
+                            <span className="text-[10px] uppercase font-mono tracking-wider text-gray-400">
+                              {current3DObject.id === "sol" ? "Translação Galáctica" : "Translação (Ano)"}
+                            </span>
+                            <span className="text-xs sm:text-sm font-semibold text-white font-mono mt-0.5 leading-snug break-words">
+                              {current3DObject.orbitalPeriod || "—"}
+                            </span>
+                          </div>
 
-                      {/* Temperatura Média Completa — sem cortes */}
-                      <div className="p-3 rounded-2xl bg-celestial-gold/5 border border-celestial-gold/25 flex flex-col justify-center">
-                        <span className="text-[10px] uppercase font-mono text-celestial-gold/80 block mb-0.5">
-                          Temperatura Média
-                        </span>
-                        <span className="text-xs sm:text-sm font-semibold text-celestial-gold font-mono leading-snug break-words">
-                          {current3DObject.temperature || "—"}
-                        </span>
-                      </div>
-                    </div>
+                          {/* 4. Temperatura Média / Sol (Superfície & Núcleo) */}
+                          <div className="p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-colors flex flex-col justify-center">
+                            <span className="text-[10px] uppercase font-mono tracking-wider text-gray-400">
+                              {current3DObject.id === "sol" ? "Temperatura (Sup. & Núcleo)" : "Temperatura Média"}
+                            </span>
+                            {current3DObject.id === "sol" ? (
+                              <div className="flex flex-col gap-0.5 mt-1">
+                                <div className="flex items-baseline justify-between text-[11px] sm:text-xs font-mono">
+                                  <span className="text-gray-400 text-[9px] sm:text-[10px] uppercase">Sup:</span>
+                                  <span className="font-semibold text-amber-300">5.500°C</span>
+                                </div>
+                                <div className="flex items-baseline justify-between text-[11px] sm:text-xs font-mono">
+                                  <span className="text-gray-400 text-[9px] sm:text-[10px] uppercase">Núcleo:</span>
+                                  <span className="font-semibold text-celestial-gold">15.000.000°C</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-xs sm:text-sm font-semibold text-celestial-gold font-mono mt-0.5 leading-snug break-words">
+                                {current3DObject.temperature || "—"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                      </motion.div>
+                    </AnimatePresence>
 
                   </motion.div>
 
