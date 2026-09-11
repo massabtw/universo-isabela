@@ -1,18 +1,17 @@
 /**
  * ====================================================================
- * HeroSection.jsx — Entrada Editorial com a Lua Encostada na Lateral
+ * HeroSection.jsx — Entrada Editorial com a Lua Pique na Foto
  * ====================================================================
  *
- * 1. Lua enorme fotorrealista encostada na lateral direita da tela (pique na foto).
+ * 1. Lua colossal exatamente como na foto de referência (right: -14vw).
  * 2. Ao carregar pós-tela preta:
- *    A Lua sai do centro da tela e se desloca suavemente até se encostar na borda direita.
- * 3. Textos editoriais da esquerda entram em harmonia:
+ *    A Lua sai do centro da tela e se desloca suavemente até a lateral direita.
+ * 3. Textos editoriais da esquerda entram em sintonia:
  *    "Isabela" (branco) / "Marty" (dourado)
  * 4. Ao scrollar:
  *    - Leve zoom gradual suave na Lua (1.0 -> 1.18)
  *    - Textos da esquerda vão desaparecendo aos pouquinhos suavemente
- *    - A seção rola para cima no scroll natural, revelando a Via Láctea
- *      subindo logo abaixo exatamente como na referência!
+ *    - A seção sobe naturalmente no scroll, revelando a Via Láctea logo abaixo!
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -35,7 +34,7 @@ export default function HeroSection() {
       const progress = Math.min(1, Math.max(0, -rect.top / Math.max(1, distance)));
       setScrollProgress(progress);
 
-      // Leve zoom na Lua conforme o scroll desce
+      // Leve zoom na Lua conforme desce o scroll
       if (moonRef.current) {
         const zoom = 1 + progress * 0.18;
         moonRef.current.style.transform = `scale(${zoom})`;
@@ -60,7 +59,7 @@ export default function HeroSection() {
   }, []);
 
   // Textos da esquerda desvanecem suavemente no scroll
-  const textOpacity = Math.max(0, 1 - scrollProgress * 2.0);
+  const textOpacity = Math.max(0, 1 - scrollProgress * 2.2);
   const textTranslateY = scrollProgress * -40;
 
   // Footer bar da Hero desvanece suavemente
@@ -72,8 +71,8 @@ export default function HeroSection() {
       className="relative z-10 w-full min-h-screen flex items-center overflow-hidden bg-[#03070E] select-none"
       id="inicio"
     >
-      {/* ── CONTEÚDO PRINCIPAL: ESQUERDA (TEXTOS) & DIREITA (LUA ENORME ENCOSTADA NA LATERAL) ── */}
-      <div className="relative z-20 w-full min-h-screen flex flex-col md:flex-row items-center justify-between px-8 sm:px-14 lg:px-20 pt-20 pb-16">
+      {/* ── CONTEÚDO PRINCIPAL: ESQUERDA (TEXTOS) & DIREITA (LUA PIQUE NA FOTO) ── */}
+      <div className="relative z-20 w-full min-h-screen flex flex-col md:flex-row items-center justify-between px-8 sm:px-14 lg:px-20 pt-20 pb-16 overflow-hidden">
 
         {/* ── COLUNA DE TEXTO ESQUERDA ── */}
         <div
@@ -137,14 +136,14 @@ export default function HeroSection() {
           </motion.a>
         </div>
 
-        {/* ── LUA FOTORREALISTA ENORME: SAI DO CENTRO E ENCOSTA NA BORDA DIREITA ── */}
+        {/* ── LUA FOTORREALISTA COLOSSAL: SAI DO CENTRO E ENCOSTA NA BORDA DIREITA ── */}
         <motion.div
           initial={{
-            x: "-30vw", // Começa no centro horizontal da tela
+            x: "-32vw", // Começa no centro horizontal da tela
             opacity: 0,
           }}
           animate={{
-            x: 0,       // Desliza suavemente até se encostar na borda direita
+            x: 0,       // Desliza suavemente até a posição exata da foto
             opacity: 1,
           }}
           transition={{
@@ -152,7 +151,7 @@ export default function HeroSection() {
             delay: 0.15,
             ease: [0.16, 1, 0.3, 1],
           }}
-          className="absolute right-[-2vw] lg:right-[-1vw] top-1/2 -translate-y-1/2 w-[clamp(440px,55vw,820px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
+          className="absolute right-[-14vw] lg:right-[-12vw] top-1/2 -translate-y-1/2 w-[clamp(520px,64vw,980px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
         >
           {/* Elemento de Zoom suave no Scroll */}
           <div
@@ -164,14 +163,14 @@ export default function HeroSection() {
               className="absolute inset-0 rounded-full pointer-events-none"
               style={{
                 background:
-                  "radial-gradient(circle at 45% 45%, rgba(229,196,131,0.22) 0%, rgba(120,167,217,0.1) 50%, transparent 72%)",
+                  "radial-gradient(circle at 45% 45%, rgba(229,196,131,0.2) 0%, rgba(120,167,217,0.08) 50%, transparent 72%)",
                 transform: "scale(1.15)",
-                filter: "blur(28px)",
+                filter: "blur(30px)",
               }}
             />
 
-            {/* Disco Lunar Enorme encostado na borda direita da tela */}
-            <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-20px_0_70px_rgba(0,0,0,0.85)] border border-white/[0.06]">
+            {/* Disco Lunar Colossal cortado na borda direita exatamente como no print */}
+            <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-25px_0_70px_rgba(0,0,0,0.9)] border border-white/[0.05]">
               <img
                 src="/moon_full.jpg"
                 alt="Lua da Isabela"

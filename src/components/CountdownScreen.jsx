@@ -1,13 +1,15 @@
 /**
  * ====================================================================
- * CountdownScreen.jsx — Split Layout com Lua Encostada na Lateral
+ * CountdownScreen.jsx — Split Layout Exatamente como no Print Enviado
  * ====================================================================
  *
- * - A Lua é exibida fotorrealista, enorme e encostada na borda direita da tela
- * - Entrada suave da Lua com fade-in cinematográfico (sem spawn brusco)
- * - Título em duas linhas: "Aniversário / da Bela." ("Bela." em dourado)
- * - Cronômetro D · H · MIN · SEG alinhado à esquerda
- * - Botão CTA dourado sólido "Antecipar o Big Bang ↗"
+ * - A Lua colossal no lado direito (ocupando ~60vw / 110vh), cortada na
+ *   borda direita exatamente como na foto de referência.
+ * - Textos perfeitamente alinhados à esquerda:
+ *   "Aniversário / da Bela." ("Bela." em dourado)
+ *   "O cosmos aguarda o início dos seus 19 anos."
+ *   Contador DIAS · HORAS · MIN · SEG
+ *   Botão CTA dourado sólido "Antecipar o Big Bang ↗"
  * - Transição pós-Big Bang:
  *   1. Clarão de luz e linhas warp com som cósmico
  *   2. Textos da esquerda somem
@@ -237,30 +239,21 @@ export default function CountdownScreen({ targetDate, onComplete }) {
         />
       )}
 
-      {/* ── HEADER MINIMALISTA (aparece durante o Big Bang) ── */}
-      <AnimatePresence>
-        {isExploding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-8 pt-6"
-          >
-            <span className="font-serif text-sm text-celestial-starlight tracking-wide">
-              Universo da Isabela
-            </span>
-            <span className="text-[11px] font-mono text-gray-400 tracking-widest">
-              14 · 09 · 2026
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* ── HEADER NO TOPO (EXATAMENTE COMO NA FOTO) ── */}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-8 sm:px-14 pt-8 pointer-events-none">
+        <span className="font-serif text-base text-white/90 tracking-wide">
+          Universo da Isabela
+        </span>
+        <span className="text-[11px] font-mono text-gray-400 tracking-widest">
+          14 · 09 · 2026
+        </span>
+      </div>
 
-      {/* ── CONTEÚDO SPLIT: ESQUERDA & DIREITA (LUA ENCOSTADA NA LATERAL) ── */}
+      {/* ── CONTEÚDO SPLIT: ESQUERDA & DIREITA (LUA PIQUE NA FOTO) ── */}
       <div className="relative z-10 min-h-screen flex flex-col md:flex-row items-center justify-between overflow-hidden">
 
         {/* COLUNA ESQUERDA — Textos do countdown */}
-        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-24 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[620px] w-full z-20">
+        <div className="flex flex-col justify-center px-8 sm:px-14 lg:px-20 pt-28 pb-10 md:pt-0 md:pb-0 md:w-1/2 md:max-w-[620px] w-full z-20">
           <AnimatePresence mode="wait">
             {!isExploding && (
               <motion.div
@@ -271,17 +264,12 @@ export default function CountdownScreen({ targetDate, onComplete }) {
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                 className="flex flex-col"
               >
-                {/* Data no topo */}
-                <p className="text-[11px] font-mono tracking-[0.35em] text-gray-500 mb-6 uppercase">
-                  14 de Setembro de 2026
-                </p>
-
-                {/* Título principal em 2 linhas */}
+                {/* Título principal em 2 linhas exatamente como no print */}
                 <h1 className="font-serif leading-[1.05] mb-5">
-                  <span className="block text-4xl sm:text-5xl lg:text-6xl text-white">
+                  <span className="block text-5xl sm:text-6xl lg:text-7xl text-white tracking-tight">
                     Aniversário
                   </span>
-                  <span className="block text-4xl sm:text-5xl lg:text-6xl">
+                  <span className="block text-5xl sm:text-6xl lg:text-7xl tracking-tight">
                     <span className="text-white">da </span>
                     <span className="text-[#E5C483]">Bela.</span>
                   </span>
@@ -319,8 +307,12 @@ export default function CountdownScreen({ targetDate, onComplete }) {
                   <span className="text-base">↗</span>
                 </button>
 
+                <p className="text-[11px] text-gray-500 font-mono mt-3">
+                  Uma prévia do universo que espera por você.
+                </p>
+
                 {/* Rodapé da esquerda */}
-                <div className="flex items-center gap-6 mt-12 pt-6 border-t border-white/[0.07]">
+                <div className="flex items-center gap-6 mt-14 pt-6 border-t border-white/[0.07]">
                   <span className="text-[11px] font-mono text-gray-500">Isabela Marty</span>
                   <span className="text-[11px] font-mono text-gray-600">O seu lugar entre as estrelas.</span>
                   <span className="text-[11px] font-mono text-gray-500 ml-auto hidden sm:block">Desde 14.09.2007</span>
@@ -330,29 +322,29 @@ export default function CountdownScreen({ targetDate, onComplete }) {
           </AnimatePresence>
         </div>
 
-        {/* ── LUA FOTORREALISTA ENORME ENCOSTADA NA LATERAL DA TELA ── */}
+        {/* ── LUA FOTORREALISTA COLOSSAL EXATAMENTE COMO NO PRINT ── */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: isExploding ? 0.6 : 1, scale: 1 }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute right-[-2vw] lg:right-[-1vw] top-1/2 -translate-y-1/2 w-[clamp(440px,52vw,780px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
+          className="absolute right-[-14vw] lg:right-[-12vw] top-1/2 -translate-y-1/2 w-[clamp(520px,64vw,980px)] aspect-square pointer-events-none select-none z-10 hidden md:flex items-center justify-center"
         >
-          {/* Halo cósmico suave circundando o relevo da Lua */}
+          {/* Halo cósmico suave circundando o limbo da Lua */}
           <div
             className="absolute inset-0 rounded-full"
             style={{
               background:
-                "radial-gradient(circle at 45% 45%, rgba(229,196,131,0.22) 0%, rgba(120,167,217,0.1) 50%, transparent 72%)",
+                "radial-gradient(circle at 45% 45%, rgba(229,196,131,0.2) 0%, rgba(120,167,217,0.08) 50%, transparent 72%)",
               transform: "scale(1.15)",
-              filter: "blur(26px)",
+              filter: "blur(30px)",
             }}
           />
 
-          {/* Disco Lunar Enorme encostado na borda da tela */}
-          <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-15px_0_60px_rgba(0,0,0,0.85)] border border-white/[0.06]">
+          {/* Disco Lunar Monumental cortado pela borda direita exatamente como no print */}
+          <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-25px_0_70px_rgba(0,0,0,0.9)] border border-white/[0.05]">
             <img
               src="/moon_full.jpg"
-              alt="Lua Cheia"
+              alt="Lua"
               className="w-full h-full object-cover rounded-full"
               style={{
                 filter: "brightness(0.92) contrast(1.08) saturate(0.9)",
