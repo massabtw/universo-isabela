@@ -171,6 +171,29 @@ export default function CosmicAgeCalculator() {
     }
   }, [customAge, planet]);
 
+  // Escuta hash na URL (#mini-games, #quiz, etc.) ou eventos de navegação
+  useEffect(() => {
+    const handleCustomTab = (e) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab);
+      }
+    };
+    const handleHash = () => {
+      if (window.location.hash === '#mini-games' || window.location.hash === '#jogos') {
+        setActiveTab('salto');
+      } else if (window.location.hash === '#quiz') {
+        setActiveTab('quiz');
+      }
+    };
+    window.addEventListener('open-cosmic-tab', handleCustomTab);
+    window.addEventListener('hashchange', handleHash);
+    handleHash();
+    return () => {
+      window.removeEventListener('open-cosmic-tab', handleCustomTab);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, []);
+
   // Dispara animação de salto
   const handleTriggerJump = () => {
     if (isJumping) return;
@@ -188,6 +211,8 @@ export default function CosmicAgeCalculator() {
 
   return (
     <section id="calculadora-cosmica" className="relative z-10 py-24 px-4 sm:px-6 md:px-10 flex flex-col items-center justify-center bg-transparent">
+      {/* Âncora para navegação direta de Mini Games */}
+      <div id="mini-games" className="scroll-mt-28 absolute top-0" />
       
       {/* Luz e brilho de fundo dinâmico */}
       <div 
@@ -240,7 +265,7 @@ export default function CosmicAgeCalculator() {
                 : "bg-white/[0.03] text-gray-400 border-white/10 hover:text-white hover:bg-white/[0.08]"
             }`}
           >
-            <span>🦘</span>
+            <span>🎮</span>
             <span>Simulador de Gravidade</span>
           </button>
 
@@ -391,7 +416,7 @@ export default function CosmicAgeCalculator() {
               </div>
 
               {/* Palco Visual do Salto */}
-              <div className="w-full max-w-lg h-64 bg-midnight-950/70 border border-white/10 rounded-2xl relative flex flex-col justify-end items-center p-4 overflow-hidden">
+              <div className="w-full max-w-lg h-72 bg-midnight-950/80 border border-white/10 rounded-2xl relative flex flex-col justify-end items-center overflow-hidden">
                 
                 {/* Linhas de altitude de referência */}
                 <div className="absolute top-6 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-gray-500 border-b border-white/5 pb-1">
@@ -402,49 +427,94 @@ export default function CosmicAgeCalculator() {
                   <span>1.3 metros (Marte)</span>
                   <span className="text-red-400/50">♂</span>
                 </div>
-                <div className="absolute bottom-16 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-gray-500 border-b border-white/5 pb-1">
+                <div className="absolute bottom-20 left-4 right-4 flex items-center justify-between text-[10px] font-mono text-gray-500 border-b border-white/5 pb-1">
                   <span>0.50 metros (Terra Padrão)</span>
                   <span className="text-blue-400/50">🜨</span>
                 </div>
 
-                {/* Astronauta / Avatar Cósmico saltando */}
+                {/* Bonequinho Astronauta (Bela) - Começa apoiado 100% no solo */}
                 <motion.div
                   animate={
                     isJumping
                       ? {
-                          y: [0, -Math.min(180, planet.jumpHeightMeters * 58), 0],
-                          scale: [1, 1.15, 1],
+                          y: [0, 6, -Math.min(170, planet.jumpHeightMeters * 56), 0],
+                          scaleY: [1, 0.78, 1.06, 0.82, 1],
+                          scaleX: [1, 1.15, 0.96, 1.12, 1],
                         }
-                      : { y: 0, scale: 1 }
+                      : { 
+                          y: [0, -1.5, 0],
+                          scaleY: [1, 1.015, 1],
+                        }
                   }
                   transition={
                     isJumping
                       ? {
                           duration: planet.hangtimeSeconds,
+                          times: [0, 0.08, 0.48, 0.94, 1],
                           ease: "easeInOut",
-                          times: [0, 0.5, 1],
                         }
-                      : { duration: 0.3 }
+                      : { 
+                          duration: 2.2, 
+                          repeat: Infinity, 
+                          ease: "easeInOut" 
+                        }
                   }
-                  className="flex flex-col items-center z-10"
+                  className="flex flex-col items-center z-10 origin-bottom select-none pointer-events-none mb-0"
                 >
-                  <div 
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-[0_0_20px_rgba(255,255,255,0.4)] border border-white/30"
-                    style={{ backgroundColor: planet.color }}
-                  >
-                    {planet.symbol}
+                  {/* Tag com Nome e Altitude - Posicionada ACIMA da cabeça para as botas tocarem o chão */}
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-celestial-gold bg-midnight-950/90 px-2.5 py-0.5 rounded-full border border-celestial-gold/30 shadow-md mb-2">
+                    <span className="text-xs">👩‍🚀</span>
+                    <span className="font-medium">Bela</span>
+                    <span className="text-white/80">({isJumping ? `${planet.jumpHeightMeters.toFixed(2)}m` : '0.00m'})</span>
                   </div>
-                  <span className="text-[10px] font-mono text-celestial-gold mt-1 bg-midnight-950/80 px-2 py-0.5 rounded-full border border-celestial-gold/30">
-                    Bela ({planet.jumpHeightMeters}m)
-                  </span>
+
+                  {/* O Bonequinho (Astronauta em Traje Espacial com Botas no Solo) */}
+                  <div className="relative flex flex-col items-center">
+                    {/* Efeito de propulsão na decolagem */}
+                    {isJumping && (
+                      <motion.div 
+                        initial={{ opacity: 0.9, scale: 0.6 }}
+                        animate={{ opacity: 0, scale: 2.2 }}
+                        transition={{ duration: 0.35 }}
+                        className="absolute -bottom-1 w-8 h-2 rounded-full bg-white/50 blur-[2px]"
+                      />
+                    )}
+
+                    {/* Capacete Espacial com Viseira Espelhada */}
+                    <div className="relative w-9 h-9 rounded-full bg-gradient-to-b from-slate-100 to-slate-300 border-2 border-slate-400/90 shadow-md flex items-center justify-center z-10">
+                      <div 
+                        className="w-6 h-5 rounded-full relative overflow-hidden flex items-center justify-center shadow-inner"
+                        style={{ background: `linear-gradient(135deg, ${planet.color}, #151c2e)` }}
+                      >
+                        <div className="absolute top-0.5 left-1 w-2.5 h-1 bg-white/70 rounded-full rotate-[-20deg]" />
+                      </div>
+                      <div className="absolute -right-0.5 top-2.5 w-1 h-2 rounded-full bg-celestial-gold shadow-[0_0_5px_#e5c483]" />
+                    </div>
+
+                    {/* Traje Espacial com Mochila de Sobrevivência */}
+                    <div className="relative w-8 h-7 bg-slate-200 border border-slate-400 rounded-t-sm rounded-b-md shadow-sm flex flex-col items-center justify-center -mt-0.5 z-0">
+                      <div className="absolute -left-1.5 top-0.5 w-1.5 h-5 bg-slate-400 rounded-sm" />
+                      <div className="absolute -right-1.5 top-0.5 w-1.5 h-5 bg-slate-400 rounded-sm" />
+                      <div className="flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      </div>
+                    </div>
+
+                    {/* Pernas e Botas Espaciais - Fixadas e assentadas DIRETAMENTE no solo */}
+                    <div className="flex gap-2 -mt-0.5">
+                      <div className="w-2.5 h-3 bg-slate-300 border border-slate-400 rounded-b-md shadow-sm" />
+                      <div className="w-2.5 h-3 bg-slate-300 border border-slate-400 rounded-b-md shadow-sm" />
+                    </div>
+                  </div>
                 </motion.div>
 
-                {/* Chão do Planeta */}
+                {/* Solo do Planeta com textura sólida */}
                 <div 
-                  className="w-full h-4 rounded-b-xl mt-2 transition-colors duration-500 flex items-center justify-center text-[9px] font-mono uppercase tracking-widest text-white/70"
-                  style={{ backgroundColor: `${planet.color}40`, borderTop: `2px solid ${planet.color}` }}
+                  className="w-full h-8 z-20 transition-colors duration-500 flex items-center justify-center text-[10px] font-mono uppercase tracking-widest text-white/90 shadow-[0_-4px_15px_rgba(0,0,0,0.6)]"
+                  style={{ backgroundColor: `${planet.color}45`, borderTop: `2px solid ${planet.color}` }}
                 >
-                  Solo de {planet.name}
+                  <span className="font-semibold drop-shadow-sm">Solo de {planet.name} • {planet.gravity} m/s²</span>
                 </div>
               </div>
 

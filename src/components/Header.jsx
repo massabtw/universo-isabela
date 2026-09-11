@@ -17,8 +17,9 @@ const NAV_ITEMS = [
   { label: "Constelação", href: "#constelacao", icon: "✧", subtitle: "Virgem no Céu Estelar" },
   { label: "Sistema Solar", href: "#sistema-solar", icon: "🪐", subtitle: "Órbitas e Modelos 3D" },
   { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
+  { label: "Mini Games", href: "#mini-games", icon: "🎮", subtitle: "Gravidade & Quiz", action: "games", highlight: true },
   { label: "Carta", href: "#mensagem", icon: "💌", subtitle: "Envelope Selado" },
-  { label: "19 anos", href: "#calculadora-cosmica", icon: "⏳", subtitle: "Sua Idade no Cosmos", highlight: true },
+  { label: "19 anos", href: "#calculadora-cosmica", icon: "⏳", subtitle: "Sua Idade no Cosmos" },
 ];
 
 export default function Header() {
@@ -71,9 +72,19 @@ export default function Header() {
     };
   }, []);
 
-  const handleNavClick = (href) => {
+  const handleNavClick = (item) => {
     setIsMobileMenuOpen(false);
-    const target = document.querySelector(href);
+    
+    if (item.action === 'games' || item.href === '#mini-games') {
+      window.dispatchEvent(new CustomEvent('open-cosmic-tab', { detail: { tab: 'salto' } }));
+      const target = document.querySelector('#mini-games') || document.querySelector('#calculadora-cosmica');
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+      return;
+    }
+
+    const target = document.querySelector(item.href);
     if (target) {
       target.scrollIntoView({ behavior: "smooth" });
     }
@@ -114,18 +125,18 @@ export default function Header() {
             </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-5 lg:gap-7">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6">
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNavClick(item.href);
+                  handleNavClick(item);
                 }}
-                className={`text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 font-sans cursor-pointer py-1 ${
+                className={`text-[10.5px] lg:text-[11px] uppercase tracking-[0.18em] transition-colors duration-300 font-sans cursor-pointer py-1 ${
                   item.highlight
-                    ? "text-celestial-gold font-medium"
+                    ? "text-celestial-gold font-semibold drop-shadow-[0_0_8px_rgba(229,196,131,0.5)]"
                     : "text-gray-400 hover:text-celestial-gold"
                 }`}
               >
@@ -214,18 +225,28 @@ export default function Header() {
                       href={item.href}
                       onClick={(e) => {
                         e.preventDefault();
-                        handleNavClick(item.href);
+                        handleNavClick(item);
                       }}
                       initial={{ opacity: 0, x: 15 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * idx, duration: 0.3 }}
-                      className="flex items-center gap-3.5 p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-celestial-gold/40 transition-all group cursor-pointer"
+                      transition={{ delay: 0.04 * idx, duration: 0.3 }}
+                      className={`flex items-center gap-3.5 p-3 rounded-2xl border transition-all group cursor-pointer ${
+                        item.highlight
+                          ? "bg-celestial-gold/10 border-celestial-gold/40 shadow-[0_0_15px_rgba(229,196,131,0.15)]"
+                          : "bg-white/[0.03] hover:bg-white/[0.08] border-white/[0.06] hover:border-celestial-gold/40"
+                      }`}
                     >
-                      <span className="w-8 h-8 rounded-xl bg-celestial-gold/10 border border-celestial-gold/30 flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform">
+                      <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-base shrink-0 group-hover:scale-110 transition-transform ${
+                        item.highlight
+                          ? "bg-celestial-gold/20 border border-celestial-gold/50 text-celestial-gold"
+                          : "bg-celestial-gold/10 border border-celestial-gold/30"
+                      }`}>
                         {item.icon}
                       </span>
                       <div className="flex flex-col">
-                        <span className="text-xs font-mono uppercase tracking-wider text-celestial-starlight group-hover:text-celestial-gold transition-colors font-medium">
+                        <span className={`text-xs font-mono uppercase tracking-wider transition-colors font-medium ${
+                          item.highlight ? "text-celestial-gold font-semibold" : "text-celestial-starlight group-hover:text-celestial-gold"
+                        }`}>
                           {item.label}
                         </span>
                         <span className="text-[10px] text-gray-400 font-light">
@@ -257,4 +278,3 @@ export default function Header() {
     </>
   );
 }
-
