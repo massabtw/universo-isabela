@@ -8,8 +8,8 @@
  * Foco puramente astronômico nas estrelas, magnitudes e distâncias.
  */
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useRef, useState } from "react";
+import { motion, AnimatePresence, useInView, useReducedMotion } from "framer-motion";
 
 // Dados astronômicos reais das estrelas de Virgem
 const VIRGO_STARS = [
@@ -172,6 +172,10 @@ const VIRGO_LINES = [
 
 export default function VirgoConstellation() {
   const [selectedStar, setSelectedStar] = useState(VIRGO_STARS[0]); // Spica por padrão
+  const mapRef = useRef(null);
+  const mapInView = useInView(mapRef, { once: true, amount: 0.15 });
+  const reducedMotion = useReducedMotion();
+  const revealLines = mapInView || reducedMotion;
 
   return (
     <section 
@@ -225,12 +229,19 @@ export default function VirgoConstellation() {
             {/* Grade de coordenadas celestes sutil ao fundo */}
             <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
-            <div className="w-full relative flex items-center justify-center">
+            <div ref={mapRef} className="w-full relative flex items-center justify-center">
               <svg 
                 viewBox="80 70 450 370" 
                 className="w-full max-w-[520px] h-auto overflow-visible select-none"
               >
                 <defs>
+                  <filter id="virgoLineGlow" filterUnits="userSpaceOnUse" x="70" y="60" width="470" height="390" colorInterpolationFilters="sRGB">
+                    <feGaussianBlur stdDeviation="1.6" result="glow" />
+                    <feMerge>
+                      <feMergeNode in="glow" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
                   <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="3.5" result="blur" />
                     <feMerge>
@@ -247,26 +258,34 @@ export default function VirgoConstellation() {
                   </filter>
                 </defs>
 
-                {/* O mapa anima a entrada do conjunto; as conexões ficam sempre desenhadas. */}
+                {/* O contêiner HTML dispara o desenho; um traço de base mantém o mapa conectado. */}
                 {VIRGO_LINES.map(([fromId, toId], idx) => {
                   const from = VIRGO_STARS.find((s) => s.id === fromId);
                   const to = VIRGO_STARS.find((s) => s.id === toId);
                   if (!from || !to) return null;
 
                   return (
-                    <line
-                      key={`line-${idx}`}
-                      className="constellation-line"
-                      x1={from.x}
-                      y1={from.y}
-                      x2={to.x}
-                      y2={to.y}
-                      stroke="rgba(155, 195, 245, 0.65)"
-                      strokeWidth="2.5"
-                      strokeDasharray="6 6"
-                      vectorEffect="non-scaling-stroke"
-                      pointerEvents="none"
-                    />
+                    <g key={`line-${idx}`} pointerEvents="none" aria-hidden="true">
+                      <line
+                        x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+                        stroke="rgba(155, 195, 245, 0.18)"
+                        strokeWidth="0.8"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                      <motion.line
+                        className="constellation-line"
+                        x1={from.x}
+                        y1={from.y}
+                        initial={false}
+                        animate={{ x2: revealLines ? to.x : from.x, y2: revealLines ? to.y : from.y }}
+                        transition={{ duration: reducedMotion ? 0 : 1.2, delay: reducedMotion ? 0 : idx * 0.12, ease: [0.22, 1, 0.36, 1] }}
+                        stroke="rgba(164, 207, 255, 0.75)"
+                        strokeWidth="1.1"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                        filter="url(#virgoLineGlow)"
+                      />
+                    </g>
                   );
                 })}
 
