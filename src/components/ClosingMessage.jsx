@@ -157,7 +157,7 @@ export default function ClosingMessage() {
 
                 {/* ── DOBRAS E BOLSO DO ENVELOPE (FRENTE) ── */}
                 {/* Dobra Inferior do Envelope */}
-                <div className="absolute inset-x-0 bottom-0 h-3/5 overflow-hidden pointer-events-none z-15">
+                <div className="absolute inset-x-0 bottom-0 h-3/5 overflow-hidden pointer-events-none z-[15]">
                   <div
                     className="absolute inset-0 bg-gradient-to-t from-[#060b1e] via-[#09112e] to-transparent"
                     style={{ clipPath: "polygon(0 100%, 50% 20%, 100% 100%)" }}
@@ -171,7 +171,7 @@ export default function ClosingMessage() {
 
                 {/* Dobra Esquerda */}
                 <div 
-                  className="absolute inset-y-0 left-0 w-1/2 pointer-events-none z-15 opacity-60"
+                  className="absolute inset-y-0 left-0 w-1/2 pointer-events-none z-[15] opacity-60"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%)",
                     clipPath: "polygon(0 0, 0 100%, 100% 100%)"
@@ -180,7 +180,7 @@ export default function ClosingMessage() {
 
                 {/* Dobra Direita */}
                 <div 
-                  className="absolute inset-y-0 right-0 w-1/2 pointer-events-none z-15 opacity-60"
+                  className="absolute inset-y-0 right-0 w-1/2 pointer-events-none z-[15] opacity-60"
                   style={{
                     background: "linear-gradient(-135deg, rgba(255,255,255,0.03) 0%, transparent 60%)",
                     clipPath: "polygon(100% 0, 100% 100%, 0 100%)"
@@ -207,7 +207,7 @@ export default function ClosingMessage() {
                 </motion.div>
 
                 {/* ── SELO DE CERA CÓSMICO COM A LUA (GATILHO DA ANIMAÇÃO) ── */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-25 flex items-center justify-center">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[25] flex items-center justify-center">
                   {/* Selo Principal com relevo de cera real */}
                   <motion.div
                     animate={
@@ -275,7 +275,7 @@ export default function ClosingMessage() {
                 <motion.div 
                   animate={isOpening ? { opacity: 0, y: 10 } : { opacity: 1, y: 0 }}
                   transition={{ duration: 0.35 }}
-                  className="absolute bottom-4 sm:bottom-5 inset-x-0 flex flex-col items-center justify-center z-25 pointer-events-none"
+                  className="absolute bottom-4 sm:bottom-5 inset-x-0 flex flex-col items-center justify-center z-[25] pointer-events-none"
                 >
                   <p className="font-serif italic text-xs sm:text-sm md:text-base text-celestial-starlight tracking-widest uppercase font-medium drop-shadow">
                     Para {PERSON_NAME}
