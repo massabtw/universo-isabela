@@ -36,7 +36,6 @@ export default function ClosingMessage() {
     // Duração de 1.25s para apreciar o selo quebrando, a aba abrindo em 3D e a folha saindo
     openTimer.current = setTimeout(() => {
       setIsOpen(true);
-      setIsOpening(false);
       setTimeout(() => {
         const target = letterRef.current || document.getElementById('mensagem');
         if (target) {
@@ -93,11 +92,15 @@ export default function ClosingMessage() {
             className="flex flex-col items-center select-none z-10 w-full max-w-xl text-center"
           >
             {/* Ornamento Superior Celestial */}
-            <div className="mb-6 flex items-center justify-center w-full opacity-70">
+            <motion.div
+              animate={{ opacity: isOpening ? 0 : 0.7 }}
+              transition={{ duration: 0.2 }}
+              className="mb-6 flex items-center justify-center w-full"
+            >
               <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-r from-transparent to-celestial-gold/60" />
               <span className="mx-4 text-celestial-gold text-sm tracking-widest">✧ 🌙 ✧</span>
               <div className="h-[1px] w-12 sm:w-24 bg-gradient-to-l from-transparent to-celestial-gold/60" />
-            </div>
+            </motion.div>
 
             {/* O Envelope Cósmico Interativo com Dobra 3D */}
             <button
@@ -105,7 +108,6 @@ export default function ClosingMessage() {
               aria-label="Abrir a carta de aniversário"
               onClick={handleOpenLetter}
               className="relative group cursor-pointer focus:outline-none select-none touch-manipulation border-0 bg-transparent p-0"
-              style={{ perspective: 1200 }}
             >
               {/* Feixe de Luz Estelar Emergente ao Romper o Selo */}
               <AnimatePresence>
@@ -125,18 +127,22 @@ export default function ClosingMessage() {
               </AnimatePresence>
 
               {/* Corpo Principal do Envelope */}
-              <div className="relative w-[310px] h-[210px] sm:w-[420px] sm:h-[270px] md:w-[480px] md:h-[300px] rounded-3xl overflow-hidden bg-gradient-to-b from-[#141c42] via-[#0b122c] to-[#050818] border border-celestial-gold/40 group-hover:border-celestial-gold/80 transition-all duration-500 shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(229,196,131,0.2)]">
+              {/* As partes animadas podem sair do corpo; cada decoração recorta seus próprios cantos. */}
+              <div
+                style={{ perspective: 1200 }}
+                className="relative w-[310px] h-[210px] sm:w-[420px] sm:h-[270px] md:w-[480px] md:h-[300px] rounded-3xl overflow-visible bg-gradient-to-b from-[#141c42] via-[#0b122c] to-[#050818] border border-celestial-gold/40 group-hover:border-celestial-gold/80 transition-all duration-500 shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(229,196,131,0.2)]"
+              >
                 
                 {/* Textura Galáctica Interna */}
                 <div 
-                  className="absolute inset-0 opacity-40 pointer-events-none"
+                  className="absolute inset-0 rounded-[inherit] opacity-40 pointer-events-none"
                   style={{
                     background: "radial-gradient(ellipse at 50% 35%, rgba(135,75,200,0.45) 0%, rgba(45,95,180,0.3) 45%, transparent 75%)"
                   }}
                 />
 
                 {/* Estrelinhas cintilantes de fundo no envelope */}
-                <div className="absolute inset-0 bg-[radial-gradient(#ffffff12_1px,transparent_1px)] [background-size:18px_18px] opacity-60 pointer-events-none" />
+                <div className="absolute inset-0 rounded-[inherit] bg-[radial-gradient(#ffffff12_1px,transparent_1px)] [background-size:18px_18px] opacity-60 pointer-events-none" />
 
                 {/* ── CARTA INTERNA QUE DESLIZA PARA CIMA DURANTE A ABERTURA ── */}
                 <motion.div
@@ -157,7 +163,7 @@ export default function ClosingMessage() {
 
                 {/* ── DOBRAS E BOLSO DO ENVELOPE (FRENTE) ── */}
                 {/* Dobra Inferior do Envelope */}
-                <div className="absolute inset-x-0 bottom-0 h-3/5 overflow-hidden pointer-events-none z-[15]">
+                <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-b-3xl overflow-hidden pointer-events-none z-[15]">
                   <div
                     className="absolute inset-0 bg-gradient-to-t from-[#060b1e] via-[#09112e] to-transparent"
                     style={{ clipPath: "polygon(0 100%, 50% 20%, 100% 100%)" }}
@@ -171,7 +177,7 @@ export default function ClosingMessage() {
 
                 {/* Dobra Esquerda */}
                 <div 
-                  className="absolute inset-y-0 left-0 w-1/2 pointer-events-none z-[15] opacity-60"
+                  className="absolute inset-y-0 left-0 w-1/2 rounded-l-3xl pointer-events-none z-[15] opacity-60"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 60%)",
                     clipPath: "polygon(0 0, 0 100%, 100% 100%)"
@@ -180,7 +186,7 @@ export default function ClosingMessage() {
 
                 {/* Dobra Direita */}
                 <div 
-                  className="absolute inset-y-0 right-0 w-1/2 pointer-events-none z-[15] opacity-60"
+                  className="absolute inset-y-0 right-0 w-1/2 rounded-r-3xl pointer-events-none z-[15] opacity-60"
                   style={{
                     background: "linear-gradient(-135deg, rgba(255,255,255,0.03) 0%, transparent 60%)",
                     clipPath: "polygon(100% 0, 100% 100%, 0 100%)"
@@ -193,7 +199,7 @@ export default function ClosingMessage() {
                   animate={isOpening ? { rotateX: -180, zIndex: 0 } : { rotateX: 0, zIndex: 20 }}
                   transition={{ duration: 0.75, delay: 0.25, ease: [0.45, 0, 0.2, 1] }}
                   style={{ transformOrigin: "top center", transformStyle: "preserve-3d" }}
-                  className="absolute inset-x-0 top-0 h-1/2 pointer-events-none will-change-transform"
+                  className="absolute inset-x-0 top-0 h-1/2 rounded-t-3xl overflow-hidden pointer-events-none will-change-transform"
                 >
                   <div
                     className="w-full h-full bg-gradient-to-b from-[#1a2556] via-[#10193c] to-[#0a102b] shadow-lg border-b border-celestial-gold/30"
