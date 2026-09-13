@@ -247,15 +247,16 @@ export default function VirgoConstellation() {
                   </filter>
                 </defs>
 
-                {/* Linhas da Constelação */}
+                {/* O mapa anima a entrada do conjunto; as conexões ficam sempre desenhadas. */}
                 {VIRGO_LINES.map(([fromId, toId], idx) => {
                   const from = VIRGO_STARS.find((s) => s.id === fromId);
                   const to = VIRGO_STARS.find((s) => s.id === toId);
                   if (!from || !to) return null;
 
                   return (
-                    <motion.line
+                    <line
                       key={`line-${idx}`}
+                      className="constellation-line"
                       x1={from.x}
                       y1={from.y}
                       x2={to.x}
@@ -263,10 +264,8 @@ export default function VirgoConstellation() {
                       stroke="rgba(155, 195, 245, 0.65)"
                       strokeWidth="2.5"
                       strokeDasharray="6 6"
-                      initial={{ pathLength: 0, opacity: 0 }}
-                      whileInView={{ pathLength: 1, opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.5, delay: idx * 0.1 }}
+                      vectorEffect="non-scaling-stroke"
+                      pointerEvents="none"
                     />
                   );
                 })}
