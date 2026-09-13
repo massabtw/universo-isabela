@@ -260,9 +260,9 @@ export default function VirgoConstellation() {
                       y1={from.y}
                       x2={to.x}
                       y2={to.y}
-                      stroke="rgba(155, 195, 245, 0.35)"
-                      strokeWidth="1.5"
-                      strokeDasharray="3 3"
+                      stroke="rgba(155, 195, 245, 0.65)"
+                      strokeWidth="2.5"
+                      strokeDasharray="6 6"
                       initial={{ pathLength: 0, opacity: 0 }}
                       whileInView={{ pathLength: 1, opacity: 1 }}
                       viewport={{ once: true }}

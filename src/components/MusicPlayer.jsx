@@ -38,7 +38,7 @@ export default function MusicPlayer() {
         ref={audioRef} 
         src={MUSIC.src} 
         loop 
-        preload="auto"
+        preload="none"
         onError={() => {
           if (isPlaying) {
             setIsPlaying(false);

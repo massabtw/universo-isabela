@@ -1,5 +1,4 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { calculateLunarData } from '../utils/moon';
 
 export default function MoonPhase() {
@@ -17,7 +16,7 @@ export default function MoonPhase() {
   const dateLabel = date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric', ...(mode === 'birth' ? { timeZone: 'UTC' } : {}) });
   return (
     <section id="lua" className="moon-observatory">
-      <motion.div className="moon-observatory-inner" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ amount: 0.2 }} transition={{ duration: 0.9 }}>
+      <div className="moon-observatory-inner">
         <header className="moon-heading">
           <h2>O Astro Favorito da Bebela</h2>
           <p>A mesma Lua. Dois momentos da sua história.</p>
@@ -41,17 +40,17 @@ export default function MoonPhase() {
               <button aria-pressed={mode === 'birth'} onClick={() => setMode('birth')}>14 de setembro de 2007</button>
               <button aria-pressed={mode === 'today'} onClick={() => setMode('today')}>Lua de hoje</button>
             </div>
-            <motion.figure key={mode} initial={{ opacity: 0.3 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+            <figure>
               <svg viewBox="0 0 100 100" role="img" aria-label={data.phaseName + ', ' + data.illuminationPercent + '% iluminada'} className="observatory-moon">
                 <defs><mask id={mask}><rect width="100" height="100" fill="black" /><path d={data.lightPath} fill="white" transform={data.waxing ? 'translate(100 0) scale(-1 1)' : undefined} /></mask></defs>
-                <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" opacity="0.13" />
-                <image href="/moon_full.jpg" x="-3.1" y="-3.1" width="106.2" height="106.2" mask={'url(#' + mask + ')'} />
+                <image href="/moon-640.webp" x="-3.1" y="-3.1" width="106.2" height="106.2" opacity="0.13" />
+                <image href="/moon-640.webp" x="-3.1" y="-3.1" width="106.2" height="106.2" mask={'url(#' + mask + ')'} />
               </svg>
               <figcaption><strong>{data.phaseName}</strong><span>{dateLabel}</span></figcaption>
-            </motion.figure>
+            </figure>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

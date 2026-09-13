@@ -10,8 +10,10 @@
  */
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { LUNAR_PHOTOS } from "../config.js";
+
+import PhotoLightbox from './PhotoLightbox';
 
 const EXTENSION_CANDIDATES = [".jpg", ".png", ".jpeg", ".webp", ".JPG", ".PNG", ".JPEG"];
 
@@ -86,23 +88,23 @@ export default function MoonGallery() {
             const displaySrc = getDisplaySrc(photo);
 
             return (
-              <motion.div
+              <motion.button type="button"
                 key={photo.id}
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.12 }}
-                whileHover={{ y: -6 }}
-                onClick={() => setSelectedPhoto(photo)}
-                className="group relative cursor-pointer bg-midnight-900/60 backdrop-blur-xl border border-white/10 hover:border-celestial-gold/40 rounded-3xl p-4 sm:p-5 shadow-2xl transition-all duration-500 overflow-hidden flex flex-col"
+                onClick={event => { event.currentTarget.focus({ preventScroll: true }); setSelectedPhoto(photo); }}
+                className="photo-card group relative cursor-pointer text-left bg-midnight-900/60 backdrop-blur-xl border border-white/10 hover:border-celestial-gold/40 rounded-3xl p-4 sm:p-5 shadow-2xl transition-colors duration-200 overflow-hidden flex flex-col"
               >
                 {/* Moldura da Foto com Aspecto Elegante */}
                 <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-black/80 mb-4 border border-white/5">
                   <img
                     src={displaySrc}
+                    width="800" height="1000" loading="lazy" decoding="async"
                     alt={photo.title}
                     onError={() => handleImageError(photo)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 select-none"
+                    className="w-full h-full object-cover transition-transform duration-700 select-none"
                   />
 
                   {/* Gradiente sutil escuro para contraste */}
@@ -129,7 +131,7 @@ export default function MoonGallery() {
                     {photo.caption}
                   </p>
                 </div>
-              </motion.div>
+              </motion.button>
             );
           })}
         </div>
@@ -137,58 +139,8 @@ export default function MoonGallery() {
       </div>
 
       {/* ── Modal Lightbox em Tela Cheia ── */}
-      <AnimatePresence>
-        {selectedPhoto && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-            />
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ duration: 0.3 }}
-              className="relative max-w-3xl w-full bg-midnight-950/95 border border-white/20 rounded-3xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.95)] z-10 flex flex-col max-h-[90vh]"
-            >
-              {/* Botão fechar */}
-              <button
-                onClick={() => setSelectedPhoto(null)}
-                className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/60 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-              >
-                ✕
-              </button>
-
-              {/* Imagem Ampliada */}
-              <div className="relative w-full max-h-[60vh] bg-black flex items-center justify-center overflow-hidden">
-                <img
-                  src={getDisplaySrc(selectedPhoto)}
-                  alt={selectedPhoto.title}
-                  className="max-h-[60vh] w-auto object-contain"
-                />
-              </div>
-
-              {/* Legenda e Detalhes da Foto */}
-              <div className="p-6 sm:p-8 bg-midnight-900/90 border-t border-white/10">
-                <div className="flex items-center gap-2 text-xs font-mono text-celestial-gold uppercase tracking-widest mb-1.5">
-                  <span>🌙</span>
-                  <span>{selectedPhoto.date}</span>
-                </div>
-                <h3 className="font-serif text-2xl text-celestial-starlight mb-2">
-                  {selectedPhoto.title}
-                </h3>
-                <p className="font-serif italic text-sm text-gray-300 leading-relaxed">
-                  "{selectedPhoto.caption}"
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {selectedPhoto && <PhotoLightbox photos={LUNAR_PHOTOS} getSrc={getDisplaySrc} onImageError={handleImageError}
+        selectedPhoto={selectedPhoto} onSelect={setSelectedPhoto} onClose={() => setSelectedPhoto(null)} />}
     </section>
   );
 }

@@ -58,12 +58,12 @@ function playBigBangBoom() {
 
 export default function CountdownScreen({ targetDate, onComplete }) {
   const [isExploding, setIsExploding] = useState(false);
-  const [flashOpacity, setFlashOpacity] = useState(0);
   const [isBlackout, setIsBlackout] = useState(false);
   const [belaClicks, setBelaClicks] = useState(0);
 
   const canvasRef = useRef(null);
   const animIdRef = useRef(null);
+  const explodingRef = useRef(false);
 
   const calculateTimeLeft = () => getTimeLeft(targetDate);
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft);
@@ -78,20 +78,19 @@ export default function CountdownScreen({ targetDate, onComplete }) {
 
   // Disparo do Big Bang com sequência cinematográfica mais longa
   const triggerBigBang = () => {
-    if (isExploding) return;
+    if (explodingRef.current) return;
+    explodingRef.current = true;
     setIsExploding(true);
     playBigBangBoom();
 
-    // 1. Clarão inicial com dissipação gradual
-    setFlashOpacity(1);
+    if (animIdRef.current) {
+      cancelAnimationFrame(animIdRef.current);
+    }
+
+    // 1. Inicia o Big Bang
     startWarpStars();
 
-    // 2. Dissolve o clarão
-    setTimeout(() => {
-      setFlashOpacity(0);
-    }, 700);
-
-    // 3. Após contemplação ("A exposição espacial começa"), tela preta suave
+    // 2. Após contemplação ("A exposição espacial começa"), tela preta suave
     setTimeout(() => {
       setIsBlackout(true);
     }, 4200);
@@ -215,14 +214,23 @@ export default function CountdownScreen({ targetDate, onComplete }) {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
       {/* ── CLARÃO DO BIG BANG ── */}
-      <div
-        className="absolute inset-0 bg-white pointer-events-none z-50 transition-opacity duration-700 ease-out"
-        style={{ opacity: flashOpacity }}
-      />
+      <AnimatePresence>
+        {isExploding && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 2.0, times: [0, 0.05, 1], ease: "easeOut" }}
+            className="absolute inset-0 pointer-events-none z-40 mix-blend-screen"
+            style={{ 
+              background: 'radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(229,196,131,0.8) 40%, transparent 80%)'
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── TELA PRETA RÁPIDA (FADE TO BLACK PÓS MENSAGEM) ── */}
       <motion.div
-        className="absolute inset-0 bg-black pointer-events-none z-50"
+        className="absolute inset-0 bg-black pointer-events-none z-[60]"
         initial={{ opacity: 0 }}
         animate={{ opacity: isBlackout ? 1 : 0 }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
@@ -231,10 +239,10 @@ export default function CountdownScreen({ targetDate, onComplete }) {
       {/* ── ONDA DE EXPANSÃO ÓPTICA ── */}
       {isExploding && (
         <motion.div
-          initial={{ scale: 0.1, opacity: 0.9 }}
-          animate={{ scale: 30, opacity: 0 }}
-          transition={{ duration: 3.6, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-2 border-amber-200/90 pointer-events-none z-40"
+          initial={{ scale: 0.1, opacity: 1, borderWidth: '10px' }}
+          animate={{ scale: 40, opacity: 0, borderWidth: '1px' }}
+          transition={{ duration: 3.2, ease: "easeOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-amber-100 pointer-events-none z-50 shadow-[0_0_80px_rgba(255,255,255,0.8)]"
         />
       )}
 
@@ -333,15 +341,18 @@ export default function CountdownScreen({ targetDate, onComplete }) {
 
           {/* Disco Lunar Monumental */}
           <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-25px_0_70px_rgba(0,0,0,0.9)] border border-white/[0.05]">
-            <img
-              src="/moon_full.jpg"
-              alt="Lua"
-              className="w-full h-full object-cover rounded-full"
-              style={{
-                filter: "brightness(0.92) contrast(1.08) saturate(0.9)",
-              }}
-              draggable={false}
-            />
+            <picture>
+              <source srcSet="/moon-1280.webp" type="image/webp" />
+              <img
+                src="/moon-640.webp"
+                alt="Lua"
+                className="w-full h-full object-cover rounded-full"
+                style={{
+                  filter: "brightness(0.92) contrast(1.08) saturate(0.9)",
+                }}
+                draggable={false}
+              />
+            </picture>
           </div>
         </motion.div>
       </div>

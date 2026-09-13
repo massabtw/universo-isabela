@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
   { label: "19 Anos & Games", href: "#calculadora-cosmica", icon: "🎮", subtitle: "Odisséia, Gravidade & Quiz" },
   { label: "Carta", href: "#mensagem", icon: "💌", subtitle: "Envelope Selado" },
+  { label: "A Mais Linda", href: "#mais-linda", icon: "✨", subtitle: "A Mulher Mais Linda do Universo" },
 ];
 
 export default function Header() {
@@ -152,7 +153,7 @@ export default function Header() {
             </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-4 lg:gap-6">
+          <nav className="hidden md:flex items-center gap-3 lg:gap-5">
             {NAV_ITEMS.map((item) => (
               <a
                 key={item.href}
@@ -161,7 +162,11 @@ export default function Header() {
                   e.preventDefault();
                   handleNavClick(item);
                 }}
-                className="text-[10.5px] lg:text-[11px] uppercase tracking-[0.18em] transition-colors duration-300 font-sans cursor-pointer py-1 text-gray-400 hover:text-celestial-gold"
+                className={`text-[10px] lg:text-[11px] uppercase tracking-[0.15em] transition-colors duration-300 font-sans cursor-pointer py-1 ${
+                  item.href === "#mais-linda"
+                    ? "text-celestial-gold hover:text-amber-200 font-medium drop-shadow-[0_0_8px_rgba(229,196,131,0.4)]"
+                    : "text-gray-400 hover:text-celestial-gold"
+                }`}
               >
                 {item.label}
               </a>

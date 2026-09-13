@@ -13,7 +13,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { TURNING_AGE, PERSON_NAME } from "../config";
 import CosmicMissions from './CosmicMissions';
 import { Crosshair } from 'lucide-react';
@@ -373,12 +373,13 @@ export default function CosmicAgeCalculator() {
 
         {/* ─── Conteúdo da Aba 3: Simulador de Salto Gravitacional ─── */}
         {activeTab === "salto" && (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="w-full flex flex-col gap-6"
-          >
+          <MotionConfig reducedMotion="never">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full flex flex-col gap-6"
+            >
             {/* Seletor rápido de planetas para testar gravidade */}
             <div className="w-full flex items-center justify-center gap-2 flex-wrap">
               {PLANETARY_PHYSICS.map((item) => {
@@ -554,14 +555,12 @@ export default function CosmicAgeCalculator() {
                 </div>
               </div>
 
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          </MotionConfig>
         )}
 
       </div>
     </section>
   );
 }
-
-
-

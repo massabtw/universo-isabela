@@ -91,6 +91,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await page.getByRole('button', { name: 'Voltar para as Órbitas' }).click();
     await expect(canvas).toBeVisible({ timeout: 10000 });
     await jump(page, '#calculadora-cosmica');
+    await page.getByRole('button', { name: 'Quiz Cósmico' }).click();
     await expect(page.locator('.mission-answers button')).toHaveCount(4);
     await page.locator('.mission-answers button').first().click();
     await expect(page.locator('.mission-answers button').first()).toBeDisabled();
@@ -127,6 +128,7 @@ test('reduced motion and landscape layout', async ({ page }, testInfo) => {
   await page.clock.setFixedTime(new Date('2026-09-15T12:00:00Z'));
   await page.goto('/');
   await jump(page, '#calculadora-cosmica');
+  await page.getByRole('button', { name: 'Quiz Cósmico' }).click();
   await page.getByRole('button', { name: 'Sinal distante', exact: true }).click();
   await page.getByRole('slider', { name: 'Frequência' }).fill('61');
   await page.getByRole('button', { name: 'Iniciar transmissão' }).click();

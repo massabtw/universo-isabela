@@ -173,7 +173,10 @@ export default function HeroSection() {
             {/* Disco Lunar Colossal cortado na borda direita exatamente como no print */}
             <div className="relative w-full h-full rounded-full overflow-hidden shadow-[-25px_0_70px_rgba(0,0,0,0.9)] border border-white/[0.05]">
               <img
-                src="/moon_full.jpg"
+                src="/moon-640.webp"
+                srcSet="/moon-640.webp 640w, /moon-1280.webp 1280w"
+                sizes="(max-width: 768px) 260px, 64vw"
+                width="1280" height="1280" fetchPriority="high" decoding="async"
                 alt="Lua da Isabela"
                 className="w-full h-full object-cover rounded-full"
                 style={{

@@ -114,13 +114,12 @@ export default function ClosingMessage() {
                     initial={{ opacity: 0, scaleY: 0 }}
                     animate={{ 
                       opacity: [0, 0.9, 0.6], 
-                      scaleY: [0, 1.4, 2],
-                      filter: ["blur(10px)", "blur(20px)", "blur(30px)"]
+                      scaleY: [0, 1.4, 2]
                     }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.9, delay: 0.3, ease: "easeOut" }}
                     style={{ transformOrigin: "bottom center" }}
-                    className="absolute -top-40 inset-x-8 h-48 bg-gradient-to-t from-celestial-gold/60 via-purple-500/30 to-transparent rounded-full pointer-events-none z-20"
+                    className="absolute -top-40 inset-x-8 h-48 bg-gradient-to-t from-celestial-gold/60 via-purple-500/30 to-transparent rounded-full pointer-events-none z-20 blur-xl will-change-transform will-change-opacity"
                   />
                 )}
               </AnimatePresence>
@@ -144,7 +143,7 @@ export default function ClosingMessage() {
                   initial={false}
                   animate={isOpening ? { y: -110, scale: 1.03, opacity: 1 } : { y: 0, scale: 0.96, opacity: 0 }}
                   transition={{ duration: 0.75, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-x-4 top-3 h-[180px] sm:h-[230px] rounded-2xl bg-gradient-to-b from-[#1b2654] to-[#0d1430] border border-celestial-gold/60 shadow-[0_10px_35px_rgba(0,0,0,0.8)] z-10 flex flex-col items-center justify-start pt-5 px-4 text-center pointer-events-none"
+                  className="absolute inset-x-4 top-3 h-[180px] sm:h-[230px] rounded-2xl bg-gradient-to-b from-[#1b2654] to-[#0d1430] border border-celestial-gold/60 shadow-[0_10px_35px_rgba(0,0,0,0.8)] z-10 flex flex-col items-center justify-start pt-5 px-4 text-center pointer-events-none will-change-transform"
                 >
                   <span className="text-celestial-gold text-lg sm:text-xl animate-pulse">✦ 🌙 ✦</span>
                   <p className="font-serif italic text-amber-200 text-sm sm:text-base font-medium mt-2">
@@ -194,7 +193,7 @@ export default function ClosingMessage() {
                   animate={isOpening ? { rotateX: -180, zIndex: 0 } : { rotateX: 0, zIndex: 20 }}
                   transition={{ duration: 0.75, delay: 0.25, ease: [0.45, 0, 0.2, 1] }}
                   style={{ transformOrigin: "top center", transformStyle: "preserve-3d" }}
-                  className="absolute inset-x-0 top-0 h-1/2 pointer-events-none"
+                  className="absolute inset-x-0 top-0 h-1/2 pointer-events-none will-change-transform"
                 >
                   <div
                     className="w-full h-full bg-gradient-to-b from-[#1a2556] via-[#10193c] to-[#0a102b] shadow-lg border-b border-celestial-gold/30"
@@ -212,13 +211,12 @@ export default function ClosingMessage() {
                   {/* Selo Principal com relevo de cera real */}
                   <motion.div
                     animate={
-                      isOpening
-                        ? { 
-                            scale: [1, 1.35, 0], 
-                            opacity: [1, 1, 0],
-                            filter: ["drop-shadow(0 0 30px #ffe59e)", "drop-shadow(0 0 60px #ffd700)", "drop-shadow(0 0 0px transparent)"]
-                          }
-                        : { scale: 1, opacity: 1 }
+                          isOpening
+                            ? { 
+                                scale: [1, 1.35, 0], 
+                                opacity: [1, 1, 0]
+                              }
+                            : { scale: 1, opacity: 1 }
                     }
                     transition={{ duration: 0.5, ease: "easeInOut" }}
                     whileHover={!isOpening ? { scale: 1.1 } : {}}
@@ -311,7 +309,7 @@ export default function ClosingMessage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.94, y: 25 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-2xl rounded-3xl overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(229,196,131,0.15)] border-2 border-celestial-gold/45 bg-[#080d24] relative z-10 flex flex-col p-6 sm:p-12 md:p-16 select-text"
+            className="w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl md:shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(229,196,131,0.15)] border-2 border-celestial-gold/45 bg-[#080d24] relative z-10 flex flex-col p-6 sm:p-12 md:p-16 select-text"
           >
             {/* ── FUNDO DE NEBULOSA E POEIRA CÓSMICA DA CARTA ── */}
             <div 
@@ -346,14 +344,14 @@ export default function ClosingMessage() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
-                  className="font-serif italic text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-celestial-gold to-yellow-100 font-semibold mb-6 sm:mb-8 tracking-wide drop-shadow text-center sm:text-left leading-snug"
+                  className="font-serif italic text-2xl sm:text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-celestial-gold to-yellow-100 font-semibold mb-6 sm:mb-8 tracking-wide drop-shadow-md text-center sm:text-left leading-snug"
                 >
                   {firstParagraph}
                 </motion.h3>
               )}
 
               {/* Parágrafos da Mensagem */}
-              <div className="space-y-5 sm:space-y-6 text-gray-100 font-serif text-base sm:text-lg md:text-xl leading-relaxed sm:leading-loose font-light drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+              <div className="space-y-5 sm:space-y-6 text-gray-100 font-serif text-base sm:text-lg md:text-xl leading-relaxed sm:leading-loose font-light">
                 {remainingParagraphs.map((paragraph, index) => (
                   <motion.p
                     key={index}

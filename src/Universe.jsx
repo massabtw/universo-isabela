@@ -8,6 +8,7 @@ import SolarSystemMap from './components/SolarSystemMap';
 import CosmicAgeCalculator from './components/CosmicAgeCalculator';
 import MoonGallery from './components/MoonGallery';
 import ClosingMessage from './components/ClosingMessage';
+import UniverseBeauty from './components/UniverseBeauty';
 import FloatingParticles from './components/FloatingParticles';
 import DecorativeGalaxies from './components/DecorativeGalaxies';
 import MusicPlayer from './components/MusicPlayer';
@@ -32,6 +33,7 @@ export default function Universe({ onReturn }) {
       <CosmicAgeCalculator />
       <MoonGallery />
       <ClosingMessage />
+      <UniverseBeauty />
     </main>
     <footer className="py-16 px-6 text-center border-t border-white/10 bg-midnight-950 relative z-10">
       <p className="text-xs text-gray-400">Feito com amor para a Bebela</p>
