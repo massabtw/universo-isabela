@@ -12,53 +12,10 @@ import { getTimeLeft } from "../utils/countdown";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Áudio cósmico sintetizado aveludado com volume atenuado e decay mais longo
-function playBigBangBoom() {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    if (ctx.state === "suspended") ctx.resume();
-    const now = ctx.currentTime;
-
-    // Sub-bass impact suave e profundo (volume reduzido)
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(95, now);
-    osc.frequency.exponentialRampToValueAtTime(18, now + 3.2);
-    gain.gain.setValueAtTime(0.20, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 3.6);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(now);
-    osc.stop(now + 3.6);
-
-    // Noise wash cósmico suave
-    const bufferSize = Math.floor(ctx.sampleRate * 3.4);
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(650, now);
-    filter.frequency.exponentialRampToValueAtTime(35, now + 3.0);
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.09, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 3.4);
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.connect(ctx.destination);
-    noise.start(now);
-    noise.stop(now + 3.4);
-  } catch (e) {}
-}
+import BigBangTransition from "./BigBangTransition";
 
 export default function CountdownScreen({ targetDate, onComplete }) {
   const [isExploding, setIsExploding] = useState(false);
-  const [isBlackout, setIsBlackout] = useState(false);
   const [belaClicks, setBelaClicks] = useState(0);
 
   const canvasRef = useRef(null);
@@ -76,29 +33,14 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     }
   };
 
-  // Disparo do Big Bang com sequência cinematográfica mais longa
+  // O contador e o atalho de três toques compartilham um único disparo.
   const triggerBigBang = () => {
     if (explodingRef.current) return;
     explodingRef.current = true;
     setIsExploding(true);
-    playBigBangBoom();
-
-    if (animIdRef.current) {
-      cancelAnimationFrame(animIdRef.current);
-    }
-
-    // 1. Inicia o Big Bang
-    startWarpStars();
-
-    // 2. Após contemplação ("A exposição espacial começa"), tela preta suave
-    setTimeout(() => {
-      setIsBlackout(true);
-    }, 4200);
-
-    // 4. Conclui e abre a HeroSection
-    setTimeout(() => {
-      onComplete();
-    }, 5000);
+    // Prepara o universo durante a animação para reduzir a espera na revelação.
+    import('../Universe').catch(() => {});
+    if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
   };
 
   useEffect(() => {
@@ -164,48 +106,6 @@ export default function CountdownScreen({ targetDate, onComplete }) {
     };
   }, []);
 
-  // Efeito Warp Speed prolongado ao explodir o Big Bang
-  const startWarpStars = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const width = (canvas.width = window.innerWidth);
-    const height = (canvas.height = window.innerHeight);
-    const cx = width / 2;
-    const cy = height / 2;
-
-    const streaks = Array.from({ length: 320 }, () => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = Math.random() * 22 + 12;
-      return {
-        x: cx,
-        y: cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        color: Math.random() > 0.3 ? "#FFFFFF" : Math.random() > 0.5 ? "#E5C483" : "#80D0FF",
-      };
-    });
-
-    const renderWarp = () => {
-      ctx.fillStyle = "rgba(4, 7, 20, 0.25)";
-      ctx.fillRect(0, 0, width, height);
-      streaks.forEach((s) => {
-        s.x += s.vx;
-        s.y += s.vy;
-        s.vx *= 1.025;
-        s.vy *= 1.025;
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(s.x, s.y);
-        ctx.lineTo(s.x - s.vx * 1.6, s.y - s.vy * 1.6);
-        ctx.stroke();
-      });
-      animIdRef.current = requestAnimationFrame(renderWarp);
-    };
-    renderWarp();
-  };
-
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
@@ -213,38 +113,7 @@ export default function CountdownScreen({ targetDate, onComplete }) {
       {/* ── CANVAS DE ESTRELAS ── */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
-      {/* ── CLARÃO DO BIG BANG ── */}
-      <AnimatePresence>
-        {isExploding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 2.0, times: [0, 0.05, 1], ease: "easeOut" }}
-            className="absolute inset-0 pointer-events-none z-40 mix-blend-screen"
-            style={{ 
-              background: 'radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(229,196,131,0.8) 40%, transparent 80%)'
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* ── TELA PRETA RÁPIDA (FADE TO BLACK PÓS MENSAGEM) ── */}
-      <motion.div
-        className="absolute inset-0 bg-black pointer-events-none z-[60]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isBlackout ? 1 : 0 }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-      />
-
-      {/* ── ONDA DE EXPANSÃO ÓPTICA ── */}
-      {isExploding && (
-        <motion.div
-          initial={{ scale: 0.1, opacity: 1, borderWidth: '10px' }}
-          animate={{ scale: 40, opacity: 0, borderWidth: '1px' }}
-          transition={{ duration: 3.2, ease: "easeOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-amber-100 pointer-events-none z-50 shadow-[0_0_80px_rgba(255,255,255,0.8)]"
-        />
-      )}
+      {isExploding && <BigBangTransition onComplete={onComplete} />}
 
       {/* ── HEADER NO TOPO ── */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 sm:px-14 pt-6 sm:pt-8 pointer-events-none">
@@ -357,22 +226,6 @@ export default function CountdownScreen({ targetDate, onComplete }) {
         </motion.div>
       </div>
 
-      {/* ── MENSAGEM PÓS-BIG BANG: "A exposição espacial começa" ── */}
-      <AnimatePresence>
-        {isExploding && !isBlackout && (
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 0.8, duration: 1.0 }}
-            className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none"
-          >
-            <h2 className="font-serif text-3xl sm:text-5xl text-white tracking-tight text-center px-6">
-              A exposição espacial começa
-            </h2>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
