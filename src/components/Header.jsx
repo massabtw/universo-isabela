@@ -16,8 +16,8 @@ const NAV_ITEMS = [
   { label: "A Lua", href: "#lua", icon: "🌙", subtitle: "Fase de 14/09/2007" },
   { label: "Constelação", href: "#constelacao", icon: "✧", subtitle: "Virgem no Céu Estelar" },
   { label: "Sistema Solar", href: "#sistema-solar", icon: "🪐", subtitle: "Órbitas e Modelos 3D" },
-  { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
   { label: "19 Anos & Games", href: "#calculadora-cosmica", icon: "🎮", subtitle: "Odisséia, Gravidade & Quiz" },
+  { label: "Galeria", href: "#galeria", icon: "📷", subtitle: "Astrofotografia da Bela" },
   { label: "Carta", href: "#mensagem", icon: "💌", subtitle: "Envelope Selado" },
   { label: "A Mais Linda", href: "#mais-linda", icon: "✨", subtitle: "A Mulher Mais Linda do Universo" },
 ];
